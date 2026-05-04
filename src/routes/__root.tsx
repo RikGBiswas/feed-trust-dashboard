@@ -1,4 +1,6 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Link, Scripts } from "@tanstack/react-router";
+import { Toaster } from "@/components/ui/sonner";
+import { Layout } from "@/components/Layout";
 
 import appCss from "../styles.css?url";
 
@@ -14,9 +16,9 @@ function NotFoundComponent() {
         <div className="mt-6">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:opacity-95"
           >
-            Go home
+            Go to Feed Inventory
           </Link>
         </div>
       </div>
@@ -29,24 +31,17 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-    ],
-    links: [
+      { title: "CoAction DataTrust — Feed Inventory" },
       {
-        rel: "stylesheet",
-        href: appCss,
+        name: "description",
+        content:
+          "CoAction DataTrust Feed Inventory: enterprise data feed catalog, lineage, and provisioning tracking.",
       },
     ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
-  component: RootComponent,
+  component: Layout,
   notFoundComponent: NotFoundComponent,
 });
 
@@ -58,12 +53,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <Toaster richColors closeButton position="top-right" />
         <Scripts />
       </body>
     </html>
   );
-}
-
-function RootComponent() {
-  return <Outlet />;
 }
