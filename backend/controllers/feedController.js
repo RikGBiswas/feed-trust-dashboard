@@ -169,7 +169,7 @@ exports.createFeed = async (req, res) => {
 // ── PUT /api/feeds/:id ───────────────────────────────────────────────
 exports.updateFeed = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
     const b = req.body;
 
     const { rows } = await pool.query(
