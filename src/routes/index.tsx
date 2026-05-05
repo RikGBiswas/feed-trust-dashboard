@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import { KPICard } from "@/components/KPICard";
 import { FilterBar, emptyFilters, type Filters } from "@/components/FilterBar";
 import { FeedTable } from "@/components/FeedTable";
@@ -119,15 +121,7 @@ function DashboardPage() {
 
   return (
     <div className="px-6 py-6 space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">
-            Feed Inventory Dashboard
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Catalog of all data feeds across CoAction and third-party sources.
-          </p>
-        </div>
+      <div className="flex justify-end">
         <Link
           to="/add-feed"
           className="h-9 px-3 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-95 flex items-center gap-1.5"
@@ -152,7 +146,46 @@ function DashboardPage() {
         filters={filters}
         onChange={setFilters}
         options={{ businessDomain: businessDomains, feedType: feedTypes }}
-        onExport={() => toast.success(`Exported ${filtered.length} feeds (mock).`)}
+        onExport={() => {
+          const fmtDate = (v: string | null | undefined) => { if (!v) return ""; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
+          const headers = ["Feed ID","Feed Name","Feed Type","Business Domain","Data Owner","Product Owner","Data Source","Source System","Vendor/Partner","Transfer Method","File Format","Encryption","Contains PII","Masking","Provisioned to GP","Date Provisioned","JIRA","Version","Last Change Date","Comments"];
+          const rows = filtered.map(f => [f.feedId,f.feedName,f.feedType,f.businessDomain,f.dataOwner,f.productOwner,f.dataSource,f.sourceSystem,f.vendorPartner,f.transferMethod,f.fileFormat,f.encryption,f.containsPII,f.masking,f.provisionedToGP,fmtDate(f.dateProvisioned),f.jira,f.version,fmtDate(f.lastChangeDate),f.comments]);
+          const csv = [headers.join(","), ...rows.map(r => r.map(v => `"${(v ?? "").replace(/"/g, '""')}"`).join(","))].join("\n");
+          const blob = new Blob([csv], { type: "text/csv" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `feed-inventory-${new Date().toISOString().slice(0,10)}.csv`;
+          a.click();
+          URL.revokeObjectURL(url);
+          toast.success(`Exported ${filtered.length} feeds as CSV.`);
+        }}
+        onExportPdf={() => {
+          const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+          doc.setFontSize(14);
+          doc.text("Feed Inventory Dashboard — Growth Protocol", 40, 30);
+          doc.setFontSize(9);
+          doc.setTextColor(100);
+          doc.text(`Generated: ${new Date().toLocaleString()} | ${filtered.length} feeds`, 40, 44);
+          doc.setTextColor(0);
+
+          const fmtDate = (v: string | null | undefined) => { if (!v) return ""; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
+          const headers = ["Feed ID","Feed Name","Feed Type","Business Domain","Data Owner","Product Owner","Data Source","Source System","Vendor/Partner","Transfer Method","File Format","Encryption","Contains PII","Masking","Provisioned to GP","Date Provisioned","JIRA","Version","Last Change Date","Comments"];
+          const rows = filtered.map(f => [f.feedId,f.feedName,f.feedType,f.businessDomain,f.dataOwner,f.productOwner,f.dataSource,f.sourceSystem,f.vendorPartner,f.transferMethod,f.fileFormat,f.encryption,f.containsPII,f.masking,f.provisionedToGP,fmtDate(f.dateProvisioned),f.jira,f.version,fmtDate(f.lastChangeDate),f.comments]);
+
+          autoTable(doc, {
+            startY: 56,
+            head: [headers],
+            body: rows,
+            styles: { fontSize: 5.5, cellPadding: 2 },
+            headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: "bold", fontSize: 5.5 },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            margin: { left: 20, right: 20 },
+          });
+
+          doc.save(`feed-inventory-${new Date().toISOString().slice(0,10)}.pdf`);
+          toast.success(`Exported ${filtered.length} feeds as PDF.`);
+        }}
       />
 
       <FeedTable rows={filtered} />
