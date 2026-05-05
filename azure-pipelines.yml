@@ -1,0 +1,47 @@
+# =============================================================================
+# SonarQube Cloud Analysis Pipeline for DataFeedInventory
+# React (Vite + TypeScript) frontend + Node.js Express backend
+# =============================================================================
+# Prerequisites:
+#   1. SonarQube Cloud Azure DevOps Extension installed in org
+#   2. Service Connection 'SonarCloud' configured in project settings
+#   3. Pipeline variables set (Edit pipeline → Variables):
+#      - SONAR_ORG: your SonarQube Cloud organization key
+#      - SONAR_PROJECT_KEY: your project key
+#      - SONAR_PROJECT_NAME: display name
+# =============================================================================
+
+# No trigger on commits — analysis runs only on PRs via Build Validation policy
+trigger: none
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - checkout: self
+    fetchDepth: 0
+
+  - task: SonarCloudPrepare@3
+    displayName: 'Prepare SonarCloud Analysis'
+    inputs:
+      SonarCloud: 'SonarCloud'
+      organization: '$(SONAR_ORG)'
+      scannerMode: 'CLI'
+      configMode: 'manual'
+      cliProjectKey: '$(SONAR_PROJECT_KEY)'
+      cliProjectName: '$(SONAR_PROJECT_NAME)'
+      cliSources: 'src,backend'
+      extraProperties: |
+        sonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/coverage/**,**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx,**/__tests__/**,**/routeTree.gen.ts,**/*.sql
+        sonar.test.inclusions=**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx,**/__tests__/**
+        sonar.sourceEncoding=UTF-8
+
+  - task: SonarCloudAnalyze@3
+    displayName: 'Run SonarCloud Analysis'
+    timeoutInMinutes: 15
+
+  - task: SonarCloudPublish@3
+    displayName: 'Publish Quality Gate Result'
+    inputs:
+      pollingTimeoutSec: '300'
