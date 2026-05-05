@@ -9,13 +9,16 @@ import {
   ServerCog,
   PlusCircle,
   Layers,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { KPICard } from "@/components/KPICard";
 import { FilterBar, emptyFilters, type Filters } from "@/components/FilterBar";
 import { FeedTable } from "@/components/FeedTable";
-import { mockFeeds } from "@/lib/mock-feeds";
+import { getFeeds, getFeedKpis, type Feed, type FeedKpis } from "@/api/feedApi";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -33,19 +36,43 @@ export const Route = createFileRoute("/")({
 
 function DashboardPage() {
   const [filters, setFilters] = useState<Filters>(emptyFilters);
+  const [feeds, setFeeds] = useState<Feed[]>([]);
+  const [kpis, setKpis] = useState<FeedKpis | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [feedData, kpiData] = await Promise.all([getFeeds(), getFeedKpis()]);
+      setFeeds(feedData);
+      setKpis(kpiData);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to load data";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const businessDomains = useMemo(
-    () => Array.from(new Set(mockFeeds.map((f) => f.businessDomain))).sort(),
-    [],
+    () => Array.from(new Set(feeds.map((f) => f.businessDomain))).sort(),
+    [feeds],
   );
   const feedTypes = useMemo(
-    () => Array.from(new Set(mockFeeds.map((f) => f.feedType))).sort(),
-    [],
+    () => Array.from(new Set(feeds.map((f) => f.feedType))).sort(),
+    [feeds],
   );
 
   const filtered = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
-    return mockFeeds.filter((f) => {
+    return feeds.filter((f) => {
       if (filters.businessDomain && f.businessDomain !== filters.businessDomain) return false;
       if (filters.dataSource && f.dataSource !== filters.dataSource) return false;
       if (filters.feedType && f.feedType !== filters.feedType) return false;
@@ -60,20 +87,35 @@ function DashboardPage() {
       }
       return true;
     });
-  }, [filters]);
+  }, [filters, feeds]);
 
-  const kpis = useMemo(() => {
-    const total = mockFeeds.length;
-    const third = mockFeeds.filter((f) => f.dataSource === "Third Party").length;
-    const internal = mockFeeds.filter((f) => f.dataSource === "CoAction").length;
-    const pii = mockFeeds.filter((f) => f.containsPII === "Yes").length;
-    const masked = mockFeeds.filter((f) => f.masking === "Yes").length;
-    const provisioned = mockFeeds.filter((f) => f.provisionedToGP === "Yes").length;
-    const jira = mockFeeds.filter((f) => f.jira && f.jira.trim().length > 0).length;
-    const sftp = mockFeeds.filter((f) => f.transferMethod === "SFTP").length;
-    const pct = (n: number) => (total === 0 ? "0%" : `${Math.round((n / total) * 100)}% of total`);
-    return { total, third, internal, pii, masked, provisioned, jira, sftp, pct };
-  }, []);
+  const total = kpis?.totalFeeds ?? 0;
+  const pct = (n: number) => (total === 0 ? "0%" : `${Math.round((n / total) * 100)}% of total`);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-3 text-sm text-muted-foreground">Loading feeds…</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 gap-4">
+        <AlertCircle className="h-10 w-10 text-destructive" />
+        <p className="text-sm text-muted-foreground">{error}</p>
+        <button
+          onClick={loadData}
+          className="h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-95 flex items-center gap-1.5"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="px-6 py-6 space-y-5">
@@ -96,14 +138,14 @@ function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3">
-        <KPICard label="Total Feeds" value={kpis.total} hint="All registered feeds" icon={Database} tone="info" />
-        <KPICard label="Third Party Feeds" value={kpis.third} hint={kpis.pct(kpis.third)} icon={Building2} tone="default" />
-        <KPICard label="CoAction Internal" value={kpis.internal} hint={kpis.pct(kpis.internal)} icon={Layers} tone="default" />
-        <KPICard label="Feeds with PII" value={kpis.pii} hint={kpis.pct(kpis.pii)} icon={Shield} tone="destructive" />
-        <KPICard label="Masked Feeds" value={kpis.masked} hint={kpis.pct(kpis.masked)} icon={EyeOff} tone="warning" />
-        <KPICard label="Provisioned to GP" value={kpis.provisioned} hint={kpis.pct(kpis.provisioned)} icon={Send} tone="success" />
-        <KPICard label="Feeds with JIRA" value={kpis.jira} hint={kpis.pct(kpis.jira)} icon={Ticket} tone="info" />
-        <KPICard label="SFTP Feeds" value={kpis.sftp} hint={kpis.pct(kpis.sftp)} icon={ServerCog} tone="default" />
+        <KPICard label="Total Feeds" value={kpis?.totalFeeds ?? 0} hint="All registered feeds" icon={Database} tone="info" />
+        <KPICard label="Third Party Feeds" value={kpis?.thirdPartyFeeds ?? 0} hint={pct(kpis?.thirdPartyFeeds ?? 0)} icon={Building2} tone="default" />
+        <KPICard label="CoAction Internal" value={kpis?.coactionInternalFeeds ?? 0} hint={pct(kpis?.coactionInternalFeeds ?? 0)} icon={Layers} tone="default" />
+        <KPICard label="Feeds with PII" value={kpis?.feedsWithPii ?? 0} hint={pct(kpis?.feedsWithPii ?? 0)} icon={Shield} tone="destructive" />
+        <KPICard label="Masked Feeds" value={kpis?.maskedFeeds ?? 0} hint={pct(kpis?.maskedFeeds ?? 0)} icon={EyeOff} tone="warning" />
+        <KPICard label="Provisioned to GP" value={kpis?.feedsProvisionedToGp ?? 0} hint={pct(kpis?.feedsProvisionedToGp ?? 0)} icon={Send} tone="success" />
+        <KPICard label="Feeds with JIRA" value={kpis?.feedsWithJira ?? 0} hint={pct(kpis?.feedsWithJira ?? 0)} icon={Ticket} tone="info" />
+        <KPICard label="SFTP Feeds" value={kpis?.sftpFeeds ?? 0} hint={pct(kpis?.sftpFeeds ?? 0)} icon={ServerCog} tone="default" />
       </div>
 
       <FilterBar

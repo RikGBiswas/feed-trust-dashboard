@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AddFeedRouteImport } from './routes/add-feed'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FeedsFeedIdEditRouteImport } from './routes/feeds.$feedId.edit'
 
 const AddFeedRoute = AddFeedRouteImport.update({
   id: '/add-feed',
@@ -22,31 +23,40 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedsFeedIdEditRoute = FeedsFeedIdEditRouteImport.update({
+  id: '/feeds/$feedId/edit',
+  path: '/feeds/$feedId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/add-feed': typeof AddFeedRoute
+  '/feeds/$feedId/edit': typeof FeedsFeedIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/add-feed': typeof AddFeedRoute
+  '/feeds/$feedId/edit': typeof FeedsFeedIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/add-feed': typeof AddFeedRoute
+  '/feeds/$feedId/edit': typeof FeedsFeedIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/add-feed'
+  fullPaths: '/' | '/add-feed' | '/feeds/$feedId/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/add-feed'
-  id: '__root__' | '/' | '/add-feed'
+  to: '/' | '/add-feed' | '/feeds/$feedId/edit'
+  id: '__root__' | '/' | '/add-feed' | '/feeds/$feedId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AddFeedRoute: typeof AddFeedRoute
+  FeedsFeedIdEditRoute: typeof FeedsFeedIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,13 +75,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feeds/$feedId/edit': {
+      id: '/feeds/$feedId/edit'
+      path: '/feeds/$feedId/edit'
+      fullPath: '/feeds/$feedId/edit'
+      preLoaderRoute: typeof FeedsFeedIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AddFeedRoute: AddFeedRoute,
+  FeedsFeedIdEditRoute: FeedsFeedIdEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

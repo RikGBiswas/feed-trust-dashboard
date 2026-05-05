@@ -27,7 +27,7 @@ export function Pill({
   );
 }
 
-export function YesNoPill({ value }: { value: "Yes" | "No" }) {
+export function YesNoPill({ value }: { value: string }) {
   return <Pill variant={value === "Yes" ? "warning" : "neutral"}>{value}</Pill>;
 }
 

@@ -1,7 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Save, RotateCcw, X } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { Save, RotateCcw, X, Trash2 } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
+import { createFeed, updateFeed, deleteFeed, type Feed } from "@/api/feedApi";
 
 type FormState = {
   feedId: string;
@@ -72,6 +73,14 @@ const inputCls =
 const textareaCls =
   "w-full px-3 py-2 rounded-md border border-input bg-card text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring";
 
+/** Convert ISO date string (e.g. 2026-04-20T04:00:00.000Z) to YYYY-MM-DD for date inputs */
+function toInputDate(val: string | null | undefined): string {
+  if (!val || val === "—" || val === "-") return "";
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return val;
+  return d.toISOString().slice(0, 10);
+}
+
 function Section({
   title,
   description,
@@ -119,11 +128,45 @@ function Field({
   );
 }
 
-export function FeedForm() {
+export function FeedForm({ feed }: { feed?: Feed }) {
+  const isEdit = !!feed;
   const [form, setForm] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (feed) {
+      setForm({
+        feedId: feed.feedId ?? "",
+        feedName: feed.feedName ?? "",
+        feedDescription: feed.feedDescription ?? "",
+        feedType: feed.feedType ?? "",
+        businessDomain: feed.businessDomain ?? "",
+        dataOwner: feed.dataOwner ?? "",
+        productOwner: feed.productOwner ?? "",
+        dataSource: feed.dataSource ?? "",
+        sourceSystem: feed.sourceSystem ?? "",
+        vendorPartner: feed.vendorPartner ?? "",
+        transferMethod: feed.transferMethod ?? "",
+        fileFormat: feed.fileFormat ?? "",
+        encryption: feed.encryption ?? "",
+        containsPII: feed.containsPII ?? "No",
+        masking: feed.masking ?? "No",
+        provisionedToGP: feed.provisionedToGP ?? "No",
+        dateProvisioned: toInputDate(feed.dateProvisioned),
+        jira: feed.jira ?? "",
+        credentials: feed.credentials ?? "",
+        accessOwners: feed.accessOwners ?? "",
+        accessType: feed.accessType ?? "",
+        lastChangeDate: toInputDate(feed.lastChangeDate),
+        version: feed.version ?? "",
+        comments: feed.comments ?? "",
+      });
+    }
+  }, [feed]);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -139,24 +182,50 @@ export function FeedForm() {
     return Object.keys(e).length === 0;
   };
 
-  const onSubmit = (ev: React.FormEvent) => {
+  const onSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     if (!validate()) {
       toast.error("Please complete all required fields.");
       return;
     }
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
-      toast.success(`Feed "${form.feedName}" saved successfully.`);
+    try {
+      if (isEdit && feed) {
+        await updateFeed(feed.id, form);
+        toast.success(`Feed "${form.feedName}" updated successfully.`);
+      } else {
+        await createFeed(form as any);
+        toast.success(`Feed "${form.feedName}" saved successfully.`);
+      }
       navigate({ to: "/" });
-    }, 500);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to save feed";
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const onReset = () => {
     setForm(initial);
     setErrors({});
     toast("Form reset");
+  };
+
+  const onDelete = async () => {
+    if (!feed) return;
+    setDeleting(true);
+    try {
+      await deleteFeed(feed.id);
+      toast.success(`Feed "${feed.feedName}" deleted successfully.`);
+      navigate({ to: "/" });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to delete feed";
+      toast.error(msg);
+    } finally {
+      setDeleting(false);
+      setShowDeleteConfirm(false);
+    }
   };
 
   return (
@@ -381,32 +450,89 @@ export function FeedForm() {
         </Field>
       </Section>
 
-      <div className="sticky bottom-0 bg-card/95 backdrop-blur border border-border rounded-lg shadow-card p-3 flex flex-wrap items-center justify-end gap-2">
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/" })}
-          className="h-9 px-3 rounded-md border border-input bg-card text-sm hover:bg-accent flex items-center gap-1.5"
-        >
-          <X className="h-4 w-4" />
-          Cancel
-        </button>
-        <button
-          type="button"
-          onClick={onReset}
-          className="h-9 px-3 rounded-md border border-input bg-card text-sm hover:bg-accent flex items-center gap-1.5"
-        >
-          <RotateCcw className="h-4 w-4" />
-          Reset
-        </button>
-        <button
-          type="submit"
-          disabled={submitting}
-          className="h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-95 disabled:opacity-60 flex items-center gap-1.5"
-        >
-          <Save className="h-4 w-4" />
-          {submitting ? "Saving…" : "Save Feed"}
-        </button>
+      <div className="sticky bottom-0 bg-card/95 backdrop-blur border border-border rounded-lg shadow-card p-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          {isEdit && (
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="h-9 px-3 rounded-md bg-destructive text-destructive-foreground text-sm hover:bg-destructive/90 flex items-center gap-1.5"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete Feed
+            </button>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => navigate({ to: "/" })}
+            className="h-9 px-3 rounded-md border border-input bg-card text-sm hover:bg-accent flex items-center gap-1.5"
+          >
+            <X className="h-4 w-4" />
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onReset}
+            className="h-9 px-3 rounded-md border border-input bg-card text-sm hover:bg-accent flex items-center gap-1.5"
+          >
+            <RotateCcw className="h-4 w-4" />
+            Reset
+          </button>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-95 disabled:opacity-60 flex items-center gap-1.5"
+          >
+            <Save className="h-4 w-4" />
+            {submitting ? "Saving…" : isEdit ? "Update Feed" : "Save Feed"}
+          </button>
+        </div>
       </div>
+
+      {/* ── Delete Confirmation Dialog ────────────────────────── */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowDeleteConfirm(false)}>
+          <div
+            className="bg-card border border-border rounded-lg shadow-lg w-full max-w-md mx-4 p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                <Trash2 className="h-5 w-5 text-destructive" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground">Delete Feed</h3>
+                <p className="text-sm text-muted-foreground">This action cannot be undone.</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mb-6">
+              Are you sure you want to permanently delete{" "}
+              <span className="font-medium text-foreground">"{feed?.feedName}"</span>?
+              All data associated with this feed will be removed.
+            </p>
+            <div className="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="h-9 px-4 rounded-md border border-input bg-card text-sm hover:bg-accent"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={onDelete}
+                disabled={deleting}
+                className="h-9 px-4 rounded-md bg-destructive text-destructive-foreground text-sm hover:bg-destructive/90 disabled:opacity-60 flex items-center gap-1.5"
+              >
+                <Trash2 className="h-4 w-4" />
+                {deleting ? "Deleting…" : "Delete Feed"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 }
