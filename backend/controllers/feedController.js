@@ -53,7 +53,7 @@ function rowToFeed(row) {
 exports.getAllFeeds = async (req, res) => {
   try {
     const { rows } = await pool.query(
-      "SELECT * FROM coaction_feed_inventory ORDER BY created_at DESC"
+      "SELECT * FROM coaction_feed_inventory ORDER BY created_at DESC, id ASC"
     );
     res.json(rows.map(rowToFeed));
   } catch (err) {
