@@ -4,9 +4,10 @@ module.exports = {
       name: "feed-inventory",
       cwd: "./backend",
       script: "server.js",
+      exec_mode: "fork",
       env: {
         NODE_ENV: "production",
-        PORT: 5000,
+        PORT: 5050,
       },
       instances: 1,
       autorestart: true,

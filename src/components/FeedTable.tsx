@@ -150,6 +150,11 @@ export function FeedTable({ rows }: { rows: Feed[] }) {
                   <td className="px-3 py-2 border-b border-border whitespace-nowrap font-mono text-xs">
                     {row.version}
                   </td>
+                  <td className="px-3 py-2 border-b border-border whitespace-nowrap">
+                    <Pill variant={row.environment === "PROD" ? "success" : row.environment === "UAT" ? "warning" : "info"}>
+                      {row.environment}
+                    </Pill>
+                  </td>
                   <td className="px-3 py-2 border-b border-border text-muted-foreground">
                     <span className="line-clamp-2">{row.comments}</span>
                   </td>
