@@ -1,8 +1,5 @@
-import { createRootRoute, HeadContent, Link, Scripts } from "@tanstack/react-router";
-import { Toaster } from "@/components/ui/sonner";
+import { createRootRoute, Link } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
-
-import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
@@ -27,35 +24,6 @@ function NotFoundComponent() {
 }
 
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "CoAction DataTrust — Feed Inventory" },
-      {
-        name: "description",
-        content:
-          "CoAction DataTrust Feed Inventory: enterprise data feed catalog, lineage, and provisioning tracking.",
-      },
-    ],
-    links: [{ rel: "stylesheet", href: appCss }],
-  }),
-  shellComponent: RootShell,
   component: Layout,
   notFoundComponent: NotFoundComponent,
 });
-
-function RootShell({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Toaster richColors closeButton position="top-right" />
-        <Scripts />
-      </body>
-    </html>
-  );
-}

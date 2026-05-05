@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const feedRoutes = require("./routes/feeds");
@@ -11,7 +12,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// ── Routes ───────────────────────────────────────────────────────────
+// ── API Routes ───────────────────────────────────────────────────────
 app.use("/api/feeds", feedRoutes);
 
 // Health check
@@ -19,9 +20,13 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// 404 fallback
-app.use((_req, res) => {
-  res.status(404).json({ error: "Route not found" });
+// ── Serve SPA static files in production ─────────────────────────────
+const distPath = path.join(__dirname, "..", "dist");
+app.use(express.static(distPath));
+
+// SPA fallback: serve index.html for all non-API routes
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
 });
 
 // Global error handler
