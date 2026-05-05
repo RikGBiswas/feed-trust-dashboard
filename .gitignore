@@ -35,3 +35,6 @@ dist-ssr
 .env
 backend/.env
 backend/node_modules
+
+# Deploy artifacts
+deploy/
