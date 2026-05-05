@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { Save, RotateCcw, X, Trash2 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
@@ -138,6 +138,7 @@ export function FeedForm({ feed }: { feed?: Feed }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     if (feed) {
@@ -200,6 +201,7 @@ export function FeedForm({ feed }: { feed?: Feed }) {
         await createFeed(form as any);
         toast.success(`Feed "${form.feedName}" saved successfully.`);
       }
+      await router.invalidate();
       navigate({ to: "/" });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to save feed";

@@ -13,7 +13,7 @@ import {
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -59,8 +59,20 @@ function DashboardPage() {
     }
   }, []);
 
+  // Re-fetch data every time the page becomes visible (e.g. after edit navigation)
+  const mountCount = useRef(0);
   useEffect(() => {
+    mountCount.current += 1;
     loadData();
+  }, [loadData]);
+
+  // Also listen for browser tab visibility changes
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") loadData();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, [loadData]);
 
   const businessDomains = useMemo(
