@@ -35,6 +35,7 @@ const columns: { key: keyof Feed | "actions"; label: string; width?: string }[] 
   { key: "accessType", label: "Access Type" },
   { key: "lastChangeDate", label: "Last Change" },
   { key: "version", label: "Version" },
+  { key: "environment", label: "Env" },
   { key: "comments", label: "Comments", width: "w-64" },
   { key: "actions", label: "Actions", width: "w-24" },
 ];
@@ -287,6 +288,7 @@ export function FeedTable({ rows }: { rows: Feed[] }) {
               <ViewField label="Date Provisioned" value={formatDate(viewFeed.dateProvisioned)} />
               <ViewField label="JIRA" value={viewFeed.jira} />
               <ViewField label="Version" value={viewFeed.version} />
+              <ViewField label="Environment" value={viewFeed.environment} />
               <ViewField label="Last Change Date" value={formatDate(viewFeed.lastChangeDate)} full />
             </ViewSection>
             <ViewSection title="Comments">

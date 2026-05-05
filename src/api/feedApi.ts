@@ -39,6 +39,7 @@ export type Feed = {
   accessType: string;
   lastChangeDate: string;
   version: string;
+  environment: string;
   comments: string;
   createdAt?: string;
   updatedAt?: string;

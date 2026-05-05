@@ -148,8 +148,8 @@ function DashboardPage() {
         options={{ businessDomain: businessDomains, feedType: feedTypes }}
         onExport={() => {
           const fmtDate = (v: string | null | undefined) => { if (!v) return ""; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
-          const headers = ["Feed ID","Feed Name","Feed Type","Business Domain","Data Owner","Product Owner","Data Source","Source System","Vendor/Partner","Transfer Method","File Format","Encryption","Contains PII","Masking","Provisioned to GP","Date Provisioned","JIRA","Version","Last Change Date","Comments"];
-          const rows = filtered.map(f => [f.feedId,f.feedName,f.feedType,f.businessDomain,f.dataOwner,f.productOwner,f.dataSource,f.sourceSystem,f.vendorPartner,f.transferMethod,f.fileFormat,f.encryption,f.containsPII,f.masking,f.provisionedToGP,fmtDate(f.dateProvisioned),f.jira,f.version,fmtDate(f.lastChangeDate),f.comments]);
+          const headers = ["Feed ID","Feed Name","Feed Type","Business Domain","Data Owner","Product Owner","Data Source","Source System","Vendor/Partner","Transfer Method","File Format","Encryption","Contains PII","Masking","Provisioned to GP","Date Provisioned","JIRA","Version","Environment","Last Change Date","Comments"];
+          const rows = filtered.map(f => [f.feedId,f.feedName,f.feedType,f.businessDomain,f.dataOwner,f.productOwner,f.dataSource,f.sourceSystem,f.vendorPartner,f.transferMethod,f.fileFormat,f.encryption,f.containsPII,f.masking,f.provisionedToGP,fmtDate(f.dateProvisioned),f.jira,f.version,f.environment,fmtDate(f.lastChangeDate),f.comments]);
           const csv = [headers.join(","), ...rows.map(r => r.map(v => `"${(v ?? "").replace(/"/g, '""')}"`).join(","))].join("\n");
           const blob = new Blob([csv], { type: "text/csv" });
           const url = URL.createObjectURL(blob);
@@ -170,8 +170,8 @@ function DashboardPage() {
           doc.setTextColor(0);
 
           const fmtDate = (v: string | null | undefined) => { if (!v) return ""; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
-          const headers = ["Feed ID","Feed Name","Feed Type","Business Domain","Data Owner","Product Owner","Data Source","Source System","Vendor/Partner","Transfer Method","File Format","Encryption","Contains PII","Masking","Provisioned to GP","Date Provisioned","JIRA","Version","Last Change Date","Comments"];
-          const rows = filtered.map(f => [f.feedId,f.feedName,f.feedType,f.businessDomain,f.dataOwner,f.productOwner,f.dataSource,f.sourceSystem,f.vendorPartner,f.transferMethod,f.fileFormat,f.encryption,f.containsPII,f.masking,f.provisionedToGP,fmtDate(f.dateProvisioned),f.jira,f.version,fmtDate(f.lastChangeDate),f.comments]);
+          const headers = ["Feed ID","Feed Name","Feed Type","Business Domain","Data Owner","Product Owner","Data Source","Source System","Vendor/Partner","Transfer Method","File Format","Encryption","Contains PII","Masking","Provisioned to GP","Date Provisioned","JIRA","Version","Environment","Last Change Date","Comments"];
+          const rows = filtered.map(f => [f.feedId,f.feedName,f.feedType,f.businessDomain,f.dataOwner,f.productOwner,f.dataSource,f.sourceSystem,f.vendorPartner,f.transferMethod,f.fileFormat,f.encryption,f.containsPII,f.masking,f.provisionedToGP,fmtDate(f.dateProvisioned),f.jira,f.version,f.environment,fmtDate(f.lastChangeDate),f.comments]);
 
           autoTable(doc, {
             startY: 56,

@@ -42,6 +42,7 @@ function rowToFeed(row) {
     accessType: row.access_type || "",
     lastChangeDate: row.last_change_date || "",
     version: row.version || "",
+    environment: row.environment || "DEV",
     comments: row.comments || "",
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -120,9 +121,9 @@ exports.createFeed = async (req, res) => {
         source_system, vendor_partner, transfer_method, file_format,
         encryption, contains_pii, masking, data_provisioned_to_gp,
         date_provisioned, jira, credentials, access_owners,
-        access_type, last_change_date, version, comments
+        access_type, last_change_date, version, environment, comments
       ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25
       ) RETURNING *`,
       [
         b.feedId,
@@ -148,6 +149,7 @@ exports.createFeed = async (req, res) => {
         b.accessType || null,
         parseDate(b.lastChangeDate),
         b.version || null,
+        b.environment || "DEV",
         b.comments || null,
       ]
     );
@@ -195,8 +197,9 @@ exports.updateFeed = async (req, res) => {
         access_type          = COALESCE($21, access_type),
         last_change_date     = $22,
         version              = COALESCE($23, version),
-        comments             = COALESCE($24, comments)
-      WHERE id = $25
+        environment          = COALESCE($24, environment),
+        comments             = COALESCE($25, comments)
+      WHERE id = $26
       RETURNING *`,
       [
         b.feedId || null,
@@ -222,6 +225,7 @@ exports.updateFeed = async (req, res) => {
         b.accessType || null,
         parseDate(b.lastChangeDate),
         b.version || null,
+        b.environment || null,
         b.comments || null,
         id,
       ]

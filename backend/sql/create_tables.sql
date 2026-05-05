@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS coaction_feed_inventory (
     access_type             VARCHAR(100),
     last_change_date        DATE,
     version                 VARCHAR(50),
+    environment             VARCHAR(10) DEFAULT 'DEV',
     comments                TEXT,
     created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP

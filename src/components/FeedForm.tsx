@@ -28,6 +28,7 @@ type FormState = {
   accessType: string;
   lastChangeDate: string;
   version: string;
+  environment: string;
   comments: string;
 };
 
@@ -55,6 +56,7 @@ const initial: FormState = {
   accessType: "",
   lastChangeDate: "",
   version: "",
+  environment: "DEV",
   comments: "",
 };
 
@@ -163,6 +165,7 @@ export function FeedForm({ feed }: { feed?: Feed }) {
         accessType: feed.accessType ?? "",
         lastChangeDate: toInputDate(feed.lastChangeDate),
         version: feed.version ?? "",
+        environment: feed.environment ?? "DEV",
         comments: feed.comments ?? "",
       });
     }
@@ -427,6 +430,17 @@ export function FeedForm({ feed }: { feed?: Feed }) {
             onChange={(e) => set("version", e.target.value)}
             placeholder="1.0.0"
           />
+        </Field>
+        <Field label="Environment">
+          <select
+            className={inputCls}
+            value={form.environment}
+            onChange={(e) => set("environment", e.target.value)}
+          >
+            <option>DEV</option>
+            <option>UAT</option>
+            <option>PROD</option>
+          </select>
         </Field>
         <Field label="Last Change Date" full>
           <input
