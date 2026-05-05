@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────
-# deploy-server.ps1 — Run this ON the server
+# deploy-server.ps1 - Run this ON the server
 # Extracts the deployment zip and starts the app with PM2
 # ──────────────────────────────────────────────────────────
 
@@ -10,7 +10,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-Write-Host "`n=== Feed Inventory — Server Deploy ===" -ForegroundColor Cyan
+Write-Host "`n=== Feed Inventory - Server Deploy ===" -ForegroundColor Cyan
 
 # 1. Find the zip
 if ($ZipName -eq "") {
@@ -40,7 +40,7 @@ if (Test-Path $AppDir) {
   }
   Remove-Item $AppDir -Recurse -Force
 } else {
-  Write-Host "`n[2/5] No existing app to backup — fresh install" -ForegroundColor Yellow
+  Write-Host "`n[2/5] No existing app to backup - fresh install" -ForegroundColor Yellow
 }
 
 # 4. Extract zip
@@ -70,7 +70,7 @@ DB_SSL=true
 PORT=5000
 "@
   Set-Content -Path $envFile -Value $envTemplate
-  Write-Host "  Created template .env — EDIT $envFile with the real password!" -ForegroundColor Red
+  Write-Host "  Created template .env - EDIT $envFile with the real password!" -ForegroundColor Red
 }
 
 # 6. Start with PM2
@@ -84,6 +84,6 @@ Write-Host "`n=== Deployment complete! ===" -ForegroundColor Green
 Write-Host "  App running at http://localhost:5000" -ForegroundColor Cyan
 Write-Host "  IIS should reverse-proxy to this port" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  pm2 status              — check process" -ForegroundColor Gray
-Write-Host "  pm2 logs feed-inventory — view logs" -ForegroundColor Gray
-Write-Host "  pm2 restart feed-inventory — restart" -ForegroundColor Gray
+Write-Host "  pm2 status              - check process" -ForegroundColor Gray
+Write-Host "  pm2 logs feed-inventory - view logs" -ForegroundColor Gray
+Write-Host "  pm2 restart feed-inventory - restart" -ForegroundColor Gray

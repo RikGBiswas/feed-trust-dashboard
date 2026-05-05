@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────
-# package.ps1 — Build & package deployment zip
+# package.ps1 - Build and package deployment zip
 # Run this on your dev machine before copying to the server
 # ──────────────────────────────────────────────────────────
 
@@ -8,11 +8,11 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-Write-Host "`n=== Feed Inventory — Build & Package ===" -ForegroundColor Cyan
+Write-Host "`n=== Feed Inventory - Build and Package ===" -ForegroundColor Cyan
 
 # 1. Install frontend deps & build SPA
 Write-Host "`n[1/5] Installing frontend dependencies..." -ForegroundColor Yellow
-npm install --production=false
+npm install
 if ($LASTEXITCODE -ne 0) { throw "npm install failed" }
 
 Write-Host "`n[2/5] Building frontend (SPA)..." -ForegroundColor Yellow
@@ -22,7 +22,7 @@ if ($LASTEXITCODE -ne 0) { throw "build failed" }
 # 3. Install backend production deps
 Write-Host "`n[3/5] Installing backend dependencies..." -ForegroundColor Yellow
 Push-Location backend
-npm install --production
+npm install --omit=dev
 if ($LASTEXITCODE -ne 0) { Pop-Location; throw "backend npm install failed" }
 Pop-Location
 
@@ -66,4 +66,4 @@ Write-Host "  Size: ${sizeMB} MB" -ForegroundColor Cyan
 Write-Host "`nNext steps:" -ForegroundColor Yellow
 Write-Host "  1. Copy $zipName to D:\Temp on the server"
 Write-Host "  2. RDP into the server and run:"
-Write-Host "     powershell -ExecutionPolicy Bypass -File D:\DataFeedInventory\deploy-server.ps1"
+Write-Host '     powershell -ExecutionPolicy Bypass -File D:\DataFeedInventory\deploy-server.ps1'
