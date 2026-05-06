@@ -75,20 +75,41 @@ function DashboardPage() {
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [loadData]);
 
+  const normalizeDomain = (d: string) => {
+    const lower = d.trim().toLowerCase();
+    if (lower === "claim" || lower === "claims") return "Claims";
+    return d.trim();
+  };
   const businessDomains = useMemo(
-    () => Array.from(new Set(feeds.map((f) => f.businessDomain))).sort(),
+    () => Array.from(new Set(feeds.map((f) => normalizeDomain(f.businessDomain)).filter(Boolean))).sort(),
     [feeds],
   );
   const feedTypes = useMemo(
-    () => Array.from(new Set(feeds.map((f) => f.feedType))).sort(),
+    () => Array.from(new Set(feeds.map((f) => f.feedType).filter(Boolean))).sort(),
+    [feeds],
+  );
+  const transferMethods = useMemo(
+    () => Array.from(new Set(feeds.map((f) => f.transferMethod).filter(Boolean))).sort(),
+    [feeds],
+  );
+  const dataSources = useMemo(
+    () => Array.from(new Set(feeds.map((f) => f.dataSource).filter(Boolean))).sort(),
     [feeds],
   );
 
   const filtered = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
     return feeds.filter((f) => {
-      if (filters.businessDomain && f.businessDomain !== filters.businessDomain) return false;
-      if (filters.dataSource && f.dataSource !== filters.dataSource) return false;
+      if (filters.businessDomain && normalizeDomain(f.businessDomain) !== filters.businessDomain) return false;
+      if (filters.dataSource) {
+        if (filters.dataSource === "__coaction__") {
+          if (f.dataSource.toLowerCase() !== "coaction") return false;
+        } else if (filters.dataSource === "__thirdparty__") {
+          if (f.dataSource.toLowerCase() === "coaction") return false;
+        } else {
+          if (f.dataSource !== filters.dataSource) return false;
+        }
+      }
       if (filters.feedType && f.feedType !== filters.feedType) return false;
       if (filters.transferMethod && f.transferMethod !== filters.transferMethod) return false;
       if (filters.containsPII && f.containsPII !== filters.containsPII) return false;
@@ -157,7 +178,7 @@ function DashboardPage() {
       <FilterBar
         filters={filters}
         onChange={setFilters}
-        options={{ businessDomain: businessDomains, feedType: feedTypes }}
+        options={{ businessDomain: businessDomains, feedType: feedTypes, transferMethod: transferMethods, dataSource: dataSources }}
         onExport={() => {
           const fmtDate = (v: string | null | undefined) => { if (!v) return ""; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
           const headers = ["Feed ID","Feed Name","Feed Type","Business Domain","Data Owner","Product Owner","Data Source","Source System","Vendor/Partner","Transfer Method","File Format","Encryption","Contains PII","Masking","Provisioned to GP","Date Provisioned","JIRA","Version","Environment","Last Change Date","Comments"];

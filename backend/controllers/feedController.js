@@ -67,14 +67,14 @@ exports.getKpiSummary = async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT
-        COUNT(*)::int                                                  AS "totalFeeds",
-        COUNT(*) FILTER (WHERE data_source = 'Third Party')::int       AS "thirdPartyFeeds",
-        COUNT(*) FILTER (WHERE data_source = 'CoAction')::int          AS "coactionInternalFeeds",
-        COUNT(*) FILTER (WHERE contains_pii = true)::int               AS "feedsWithPii",
-        COUNT(*) FILTER (WHERE masking = true)::int                    AS "maskedFeeds",
-        COUNT(*) FILTER (WHERE data_provisioned_to_gp = true)::int     AS "feedsProvisionedToGp",
-        COUNT(*) FILTER (WHERE jira IS NOT NULL AND jira <> '')::int   AS "feedsWithJira",
-        COUNT(*) FILTER (WHERE transfer_method = 'SFTP')::int          AS "sftpFeeds"
+        COUNT(*)::int                                                           AS "totalFeeds",
+        COUNT(*) FILTER (WHERE LOWER(data_source) <> 'coaction')::int           AS "thirdPartyFeeds",
+        COUNT(*) FILTER (WHERE LOWER(data_source) = 'coaction')::int            AS "coactionInternalFeeds",
+        COUNT(*) FILTER (WHERE contains_pii = true)::int                        AS "feedsWithPii",
+        COUNT(*) FILTER (WHERE masking = true)::int                             AS "maskedFeeds",
+        COUNT(*) FILTER (WHERE data_provisioned_to_gp = true)::int              AS "feedsProvisionedToGp",
+        COUNT(*) FILTER (WHERE jira IS NOT NULL AND jira <> '')::int            AS "feedsWithJira",
+        COUNT(*) FILTER (WHERE LOWER(transfer_method) = 'sftp')::int            AS "sftpFeeds"
       FROM coaction_feed_inventory
     `);
     res.json(rows[0]);

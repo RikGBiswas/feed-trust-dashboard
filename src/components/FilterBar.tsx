@@ -49,6 +49,8 @@ export function FilterBar({
   options: {
     businessDomain: string[];
     feedType: string[];
+    transferMethod: string[];
+    dataSource: string[];
   };
   onExport: () => void;
   onExportPdf: () => void;
@@ -91,8 +93,15 @@ export function FilterBar({
           onChange={(e) => set("dataSource", e.target.value)}
         >
           <option value="">Data Source</option>
-          <option>CoAction</option>
-          <option>Third Party</option>
+          <option value="__coaction__">Coaction</option>
+          <option value="__thirdparty__">Third Party</option>
+          <optgroup label="Specific">
+            {options.dataSource.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </optgroup>
         </select>
         <select
           className={selectClass}
@@ -112,9 +121,11 @@ export function FilterBar({
           onChange={(e) => set("transferMethod", e.target.value)}
         >
           <option value="">Transfer Method</option>
-          <option>SFTP</option>
-          <option>API</option>
-          <option>Other</option>
+          {options.transferMethod.map((o) => (
+            <option key={o} value={o}>
+              {o}
+            </option>
+          ))}
         </select>
 
         <div className="relative flex-1 min-w-[200px]">
