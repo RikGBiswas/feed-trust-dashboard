@@ -3,11 +3,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Loader2, AlertCircle, RefreshCw, Search, Eye, Pencil, X, Save } from "lucide-react";
 import { toast } from "sonner";
 import { getDataIntegrations, updateDataIntegration, type DataIntegration } from "@/api/integrationsApi";
+import { Pill } from "@/components/Badge";
 
 export const Route = createFileRoute("/data-integrations")({
   head: () => ({
     meta: [
-      { title: "Data Integrations — CoAction DataTrust" },
+      { title: "Data Integrations — CoAction" },
       { name: "description", content: "View all data integrations across the enterprise." },
     ],
   }),
@@ -166,11 +167,35 @@ function DataIntegrationsPage() {
               <tbody>
                 {visible.map((row, i) => (
                   <tr key={row.id} className={`${i % 2 === 1 ? "bg-secondary/40" : "bg-card"} hover:bg-accent/60 transition-colors`}>
-                    {columns.map((c) => (
-                      <td key={c.key} className="px-3 py-2 border-b border-border whitespace-nowrap text-muted-foreground">
-                        {row[c.key] as string}
-                      </td>
-                    ))}
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap">
+                      <Pill variant="primary">{row.domain}</Pill>
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap font-medium text-foreground">
+                      {row.sourceSystem}
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap text-muted-foreground">
+                      {row.sourcePlatform}
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap font-medium text-foreground">
+                      {row.integrationInterface}
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap font-medium text-foreground">
+                      {row.targetSystem}
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap">
+                      <Pill variant="info">{row.targetLayer}</Pill>
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap text-muted-foreground">
+                      {row.targetPlatform}
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap">
+                      <Pill variant="neutral">{row.feedType}</Pill>
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap">
+                      <Pill variant={row.frequency?.toLowerCase().includes("daily") ? "success" : row.frequency?.toLowerCase().includes("real") ? "warning" : "neutral"}>
+                        {row.frequency}
+                      </Pill>
+                    </td>
                     <td className="px-3 py-2 border-b border-border whitespace-nowrap">
                       <div className="flex items-center gap-1">
                         <button type="button" onClick={() => setViewItem(row)} className="h-7 w-7 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground flex items-center justify-center" aria-label="View">

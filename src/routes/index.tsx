@@ -25,7 +25,7 @@ import { getFeeds, getFeedKpis, type Feed, type FeedKpis } from "@/api/feedApi";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Feed Inventory — CoAction DataTrust" },
+      { title: "Feed Inventory — CoAction" },
       {
         name: "description",
         content:
@@ -159,7 +159,11 @@ function DashboardPage() {
 
   return (
     <div className="px-6 py-6 space-y-5">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Feed Inventory</h1>
+          <p className="text-sm text-muted-foreground mt-1">Browse, filter, and manage enterprise data feeds across CoAction and third-party sources.</p>
+        </div>
         <Link
           to="/add-feed"
           className="h-9 px-3 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-95 flex items-center gap-1.5"

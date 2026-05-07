@@ -7,10 +7,10 @@ import { getFeedById, type Feed } from "@/api/feedApi";
 export const Route = createFileRoute("/feeds/$feedId/edit")({
   head: () => ({
     meta: [
-      { title: "Edit Feed — CoAction DataTrust" },
+      { title: "Edit Feed — CoAction" },
       {
         name: "description",
-        content: "Edit an existing data feed in the CoAction DataTrust inventory.",
+        content: "Edit an existing data feed in the CoAction inventory.",
       },
     ],
   }),

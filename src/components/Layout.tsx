@@ -22,7 +22,7 @@ export function Layout() {
             </div>
             <div className="leading-tight">
               <div className="text-lg font-extrabold tracking-tight">CoAction</div>
-              <div className="text-xs text-header-foreground/70 font-semibold tracking-wide">DataTrust</div>
+              <div className="text-xs text-header-foreground/70 font-semibold tracking-wide">Data Inventory</div>
             </div>
           </Link>
         </div>
@@ -47,7 +47,7 @@ export function Layout() {
           })}
         </nav>
         <div className="px-5 py-3 border-t border-header-foreground/10 text-xs text-header-foreground/50">
-          © {new Date().getFullYear()} CoAction DataTrust
+          © {new Date().getFullYear()} CoAction
         </div>
       </aside>
 

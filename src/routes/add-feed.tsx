@@ -5,11 +5,11 @@ import { FeedForm } from "@/components/FeedForm";
 export const Route = createFileRoute("/add-feed")({
   head: () => ({
     meta: [
-      { title: "Add Feed — CoAction DataTrust" },
+      { title: "Add Feed — CoAction" },
       {
         name: "description",
         content:
-          "Register a new data feed in the CoAction DataTrust inventory with ownership, security, and provisioning details.",
+          "Register a new data feed in the CoAction inventory with ownership, security, and provisioning details.",
       },
     ],
   }),
