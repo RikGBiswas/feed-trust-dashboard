@@ -4,6 +4,8 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const feedRoutes = require("./routes/feeds");
+const integrationsRoutes = require("./routes/integrations");
+const apiLibraryRoutes = require("./routes/apiLibrary");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -22,6 +24,8 @@ app.use("/api", (_req, res, next) => {
 
 // ── API Routes ───────────────────────────────────────────────────────
 app.use("/api/feeds", feedRoutes);
+app.use("/api/integrations", integrationsRoutes);
+app.use("/api/api-library", apiLibraryRoutes);
 
 // Health check
 app.get("/api/health", (_req, res) => {

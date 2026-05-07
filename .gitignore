@@ -48,6 +48,12 @@ backend/.env
 # Deploy artifacts & scripts
 deploy/
 *.zip
+scripts/
+
+# Data files
+*.xlsx
+*.xls
+*.csv
 deploy.ps1
 deploy-server.ps1
 package.ps1

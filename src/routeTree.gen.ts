@@ -9,10 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DataIntegrationsRouteImport } from './routes/data-integrations'
+import { Route as ApiLibraryRouteImport } from './routes/api-library'
 import { Route as AddFeedRouteImport } from './routes/add-feed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FeedsFeedIdEditRouteImport } from './routes/feeds.$feedId.edit'
 
+const DataIntegrationsRoute = DataIntegrationsRouteImport.update({
+  id: '/data-integrations',
+  path: '/data-integrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLibraryRoute = ApiLibraryRouteImport.update({
+  id: '/api-library',
+  path: '/api-library',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AddFeedRoute = AddFeedRouteImport.update({
   id: '/add-feed',
   path: '/add-feed',
@@ -32,35 +44,73 @@ const FeedsFeedIdEditRoute = FeedsFeedIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/add-feed': typeof AddFeedRoute
+  '/api-library': typeof ApiLibraryRoute
+  '/data-integrations': typeof DataIntegrationsRoute
   '/feeds/$feedId/edit': typeof FeedsFeedIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/add-feed': typeof AddFeedRoute
+  '/api-library': typeof ApiLibraryRoute
+  '/data-integrations': typeof DataIntegrationsRoute
   '/feeds/$feedId/edit': typeof FeedsFeedIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/add-feed': typeof AddFeedRoute
+  '/api-library': typeof ApiLibraryRoute
+  '/data-integrations': typeof DataIntegrationsRoute
   '/feeds/$feedId/edit': typeof FeedsFeedIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/add-feed' | '/feeds/$feedId/edit'
+  fullPaths:
+    | '/'
+    | '/add-feed'
+    | '/api-library'
+    | '/data-integrations'
+    | '/feeds/$feedId/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/add-feed' | '/feeds/$feedId/edit'
-  id: '__root__' | '/' | '/add-feed' | '/feeds/$feedId/edit'
+  to:
+    | '/'
+    | '/add-feed'
+    | '/api-library'
+    | '/data-integrations'
+    | '/feeds/$feedId/edit'
+  id:
+    | '__root__'
+    | '/'
+    | '/add-feed'
+    | '/api-library'
+    | '/data-integrations'
+    | '/feeds/$feedId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AddFeedRoute: typeof AddFeedRoute
+  ApiLibraryRoute: typeof ApiLibraryRoute
+  DataIntegrationsRoute: typeof DataIntegrationsRoute
   FeedsFeedIdEditRoute: typeof FeedsFeedIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/data-integrations': {
+      id: '/data-integrations'
+      path: '/data-integrations'
+      fullPath: '/data-integrations'
+      preLoaderRoute: typeof DataIntegrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api-library': {
+      id: '/api-library'
+      path: '/api-library'
+      fullPath: '/api-library'
+      preLoaderRoute: typeof ApiLibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/add-feed': {
       id: '/add-feed'
       path: '/add-feed'
@@ -88,6 +138,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AddFeedRoute: AddFeedRoute,
+  ApiLibraryRoute: ApiLibraryRoute,
+  DataIntegrationsRoute: DataIntegrationsRoute,
   FeedsFeedIdEditRoute: FeedsFeedIdEditRoute,
 }
 export const routeTree = rootRouteImport
