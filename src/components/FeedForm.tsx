@@ -24,9 +24,6 @@ type FormState = {
   provisionedToGP: string;
   dateProvisioned: string;
   jira: string;
-  credentials: string;
-  accessOwners: string;
-  accessType: string;
   lastChangeDate: string;
   version: string;
   environment: string;
@@ -52,9 +49,6 @@ const initial: FormState = {
   provisionedToGP: "No",
   dateProvisioned: "",
   jira: "",
-  credentials: "",
-  accessOwners: "",
-  accessType: "",
   lastChangeDate: "",
   version: "",
   environment: "DEV",
@@ -190,9 +184,6 @@ export function FeedForm({ feed }: { feed?: Feed }) {
         provisionedToGP: feed.provisionedToGP ?? "No",
         dateProvisioned: toInputDate(feed.dateProvisioned),
         jira: feed.jira ?? "",
-        credentials: feed.credentials ?? "",
-        accessOwners: feed.accessOwners ?? "",
-        accessType: feed.accessType ?? "",
         lastChangeDate: toInputDate(feed.lastChangeDate),
         version: feed.version ?? "",
         environment: feed.environment ?? "DEV",
@@ -398,29 +389,6 @@ export function FeedForm({ feed }: { feed?: Feed }) {
             <option>No</option>
             <option>Yes</option>
           </select>
-        </Field>
-        <Field label="Credentials">
-          <input
-            className={inputCls}
-            value={form.credentials}
-            onChange={(e) => set("credentials", e.target.value)}
-            placeholder="Vault path or credential reference"
-          />
-        </Field>
-        <Field label="Access Type">
-          <input
-            className={inputCls}
-            value={form.accessType}
-            onChange={(e) => set("accessType", e.target.value)}
-            placeholder="Service Account / OAuth2 / SFTP Key"
-          />
-        </Field>
-        <Field label="Access Owner(s)" full>
-          <input
-            className={inputCls}
-            value={form.accessOwners}
-            onChange={(e) => set("accessOwners", e.target.value)}
-          />
         </Field>
       </Section>
 

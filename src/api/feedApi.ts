@@ -35,9 +35,6 @@ export type Feed = {
   provisionedToGP: string;
   dateProvisioned: string;
   jira: string;
-  credentials: string;
-  accessOwners: string;
-  accessType: string;
   lastChangeDate: string;
   version: string;
   environment: string;
