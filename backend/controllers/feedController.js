@@ -42,7 +42,7 @@ function rowToFeed(row) {
     accessType: row.access_type || "",
     lastChangeDate: row.last_change_date || "",
     version: row.version || "",
-    environment: row.environment || "DEV",
+    environment: (row.environment || "DEV").toUpperCase(),
     comments: row.comments || "",
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -176,7 +176,7 @@ exports.createFeed = async (req, res) => {
         b.accessType || null,
         parseDate(b.lastChangeDate),
         b.version || null,
-        b.environment || "DEV",
+        (b.environment || "DEV").toUpperCase(),
         b.comments || null,
       ]
     );
@@ -252,7 +252,7 @@ exports.updateFeed = async (req, res) => {
         b.accessType ?? "",
         parseDate(b.lastChangeDate),
         b.version ?? "",
-        b.environment ?? "DEV",
+        (b.environment ?? "DEV").toUpperCase(),
         b.comments ?? "",
         id,
       ]
