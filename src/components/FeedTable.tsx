@@ -30,6 +30,9 @@ const columns: { key: keyof Feed | "actions"; label: string; width?: string }[] 
   { key: "provisionedToGP", label: "Prov. GP" },
   { key: "dateProvisioned", label: "Date Provisioned" },
   { key: "jira", label: "JIRA" },
+  { key: "credentials", label: "Credentials" },
+  { key: "accessOwners", label: "Access Owner(s)" },
+  { key: "accessType", label: "Access Type" },
   { key: "lastChangeDate", label: "Last Change" },
   { key: "version", label: "Version" },
   { key: "environment", label: "Env" },
@@ -131,6 +134,15 @@ export function FeedTable({ rows }: { rows: Feed[] }) {
                   </td>
                   <td className="px-3 py-2 border-b border-border whitespace-nowrap">
                     <span className="font-mono text-xs text-info">{row.jira}</span>
+                  </td>
+                  <td className="px-3 py-2 border-b border-border whitespace-nowrap text-muted-foreground">
+                    {row.credentials}
+                  </td>
+                  <td className="px-3 py-2 border-b border-border whitespace-nowrap text-muted-foreground">
+                    {row.accessOwners}
+                  </td>
+                  <td className="px-3 py-2 border-b border-border whitespace-nowrap text-muted-foreground">
+                    {row.accessType}
                   </td>
                   <td className="px-3 py-2 border-b border-border whitespace-nowrap tabular-nums text-muted-foreground">
                     {formatDate(row.lastChangeDate)}
@@ -272,6 +284,9 @@ export function FeedTable({ rows }: { rows: Feed[] }) {
             <ViewSection title="Security & Access">
               <ViewField label="Contains PII" value={viewFeed.containsPII} />
               <ViewField label="Masking" value={viewFeed.masking} />
+              <ViewField label="Credentials" value={viewFeed.credentials} />
+              <ViewField label="Access Type" value={viewFeed.accessType} />
+              <ViewField label="Access Owner(s)" value={viewFeed.accessOwners} full />
             </ViewSection>
             <ViewSection title="Provisioning & Tracking">
               <ViewField label="Provisioned to GP" value={viewFeed.provisionedToGP} />
