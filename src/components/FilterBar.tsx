@@ -6,6 +6,7 @@ export type Filters = {
   dataSource: string;
   feedType: string;
   transferMethod: string;
+  environment: string;
   containsPII: string;
   masking: string;
   provisionedToGP: string;
@@ -17,6 +18,7 @@ export const emptyFilters: Filters = {
   dataSource: "",
   feedType: "",
   transferMethod: "",
+  environment: "",
   containsPII: "",
   masking: "",
   provisionedToGP: "",
@@ -51,6 +53,7 @@ export function FilterBar({
     feedType: string[];
     transferMethod: string[];
     dataSource: string[];
+    environment: string[];
   };
   onExport: () => void;
   onExportPdf: () => void;
@@ -67,6 +70,7 @@ export function FilterBar({
   const ds = options?.dataSource ?? [];
   const ft = options?.feedType ?? [];
   const tm = options?.transferMethod ?? [];
+  const env = options?.environment ?? [];
 
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) =>
     onChange({ ...filters, [k]: v });
@@ -127,6 +131,18 @@ export function FilterBar({
         >
           <option value="">Transfer Method</option>
           {tm.map((o) => (
+            <option key={o} value={o}>
+              {o}
+            </option>
+          ))}
+        </select>
+        <select
+          className={selectClass}
+          value={filters.environment}
+          onChange={(e) => set("environment", e.target.value)}
+        >
+          <option value="">Environment</option>
+          {env.map((o) => (
             <option key={o} value={o}>
               {o}
             </option>

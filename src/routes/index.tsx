@@ -96,6 +96,10 @@ function DashboardPage() {
     () => Array.from(new Set(feeds.map((f) => f.dataSource).filter(Boolean))).sort(),
     [feeds],
   );
+  const environments = useMemo(
+    () => Array.from(new Set(feeds.map((f) => f.environment).filter(Boolean))).sort(),
+    [feeds],
+  );
 
   const filtered = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
@@ -112,6 +116,7 @@ function DashboardPage() {
       }
       if (filters.feedType && f.feedType !== filters.feedType) return false;
       if (filters.transferMethod && f.transferMethod !== filters.transferMethod) return false;
+      if (filters.environment && f.environment !== filters.environment) return false;
       if (filters.containsPII && f.containsPII !== filters.containsPII) return false;
       if (filters.masking && f.masking !== filters.masking) return false;
       if (filters.provisionedToGP && f.provisionedToGP !== filters.provisionedToGP) return false;
@@ -178,7 +183,7 @@ function DashboardPage() {
       <FilterBar
         filters={filters}
         onChange={setFilters}
-        options={{ businessDomain: businessDomains, feedType: feedTypes, transferMethod: transferMethods, dataSource: dataSources }}
+        options={{ businessDomain: businessDomains, feedType: feedTypes, transferMethod: transferMethods, dataSource: dataSources, environment: environments }}
         onExport={() => {
           const fmtDate = (v: string | null | undefined) => { if (!v) return ""; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
           const headers = ["Feed ID","Feed Name","Description","Feed Type","Business Domain","Data Owner","Product Owner","Data Source","Source System","Vendor/Partner","Transfer Method","File Format","Encryption","Contains PII","Masking","Credentials","Access","Provisioned to GP","Date Provisioned","JIRA","Version","Environment","Last Change Date","Comments"];
