@@ -2,7 +2,8 @@ import { useNavigate, useRouter } from "@tanstack/react-router";
 import { Save, RotateCcw, X, Trash2 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { createFeed, updateFeed, deleteFeed, type Feed } from "@/api/feedApi";
+import { createFeed, updateFeed, deleteFeed, getFieldOptions, type Feed, type FieldOptions } from "@/api/feedApi";
+import { ComboBox } from "@/components/ComboBox";
 
 type FormState = {
   feedId: string;
@@ -24,7 +25,8 @@ type FormState = {
   dateProvisioned: string;
   jira: string;
   credentials: string;
-  access: string;
+  accessOwners: string;
+  accessType: string;
   lastChangeDate: string;
   version: string;
   environment: string;
@@ -51,7 +53,8 @@ const initial: FormState = {
   dateProvisioned: "",
   jira: "",
   credentials: "",
-  access: "",
+  accessOwners: "",
+  accessType: "",
   lastChangeDate: "",
   version: "",
   environment: "DEV",
@@ -130,13 +133,41 @@ function Field({
 
 export function FeedForm({ feed }: { feed?: Feed }) {
   const isEdit = !!feed;
-  const [form, setForm] = useState<FormState>(initial);
+  const STORAGE_KEY = "feed-form-draft";
+
+  // Restore draft from sessionStorage for new feeds (not edit)
+  const getInitial = (): FormState => {
+    if (feed) return initial; // will be overridden by useEffect below
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch { /* ignore */ }
+    return initial;
+  };
+
+  const [form, setForm] = useState<FormState>(getInitial);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [options, setOptions] = useState<FieldOptions>({
+    feedType: [], businessDomain: [], dataSource: [], transferMethod: [],
+    sourceSystem: [], vendorPartner: [], fileFormat: [], encryption: [],
+  });
   const navigate = useNavigate();
   const router = useRouter();
+
+  // Fetch distinct options from DB
+  useEffect(() => {
+    getFieldOptions().then(setOptions).catch(() => {});
+  }, []);
+
+  // Persist form to sessionStorage on every change (only for new feeds)
+  useEffect(() => {
+    if (!isEdit) {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(form));
+    }
+  }, [form, isEdit]);
 
   useEffect(() => {
     if (feed) {
@@ -160,7 +191,8 @@ export function FeedForm({ feed }: { feed?: Feed }) {
         dateProvisioned: toInputDate(feed.dateProvisioned),
         jira: feed.jira ?? "",
         credentials: feed.credentials ?? "",
-        access: feed.access ?? "",
+        accessOwners: feed.accessOwners ?? "",
+        accessType: feed.accessType ?? "",
         lastChangeDate: toInputDate(feed.lastChangeDate),
         version: feed.version ?? "",
         environment: feed.environment ?? "DEV",
@@ -199,6 +231,7 @@ export function FeedForm({ feed }: { feed?: Feed }) {
         toast.success(`Feed "${form.feedName}" saved successfully.`);
       }
       await router.invalidate();
+      sessionStorage.removeItem(STORAGE_KEY);
       navigate({ to: "/" });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to save feed";
@@ -211,6 +244,7 @@ export function FeedForm({ feed }: { feed?: Feed }) {
   const onReset = () => {
     setForm(initial);
     setErrors({});
+    sessionStorage.removeItem(STORAGE_KEY);
     toast("Form reset");
   };
 
@@ -250,19 +284,19 @@ export function FeedForm({ feed }: { feed?: Feed }) {
           />
         </Field>
         <Field label="Feed Type" required error={errors.feedType}>
-          <input
-            className={inputCls}
+          <ComboBox
             value={form.feedType}
-            onChange={(e) => set("feedType", e.target.value)}
-            placeholder="Batch / Streaming / API"
+            onChange={(v) => set("feedType", v)}
+            options={options.feedType}
+            placeholder="Internal / External"
           />
         </Field>
         <Field label="Business Domain" required error={errors.businessDomain}>
-          <input
-            className={inputCls}
+          <ComboBox
             value={form.businessDomain}
-            onChange={(e) => set("businessDomain", e.target.value)}
-            placeholder="Underwriting"
+            onChange={(v) => set("businessDomain", v)}
+            options={options.businessDomain}
+            placeholder="Claims / Policy / Premium"
           />
         </Field>
         <Field label="Feed Description" full>
@@ -295,56 +329,51 @@ export function FeedForm({ feed }: { feed?: Feed }) {
 
       <Section title="Source & Transfer" description="Where the data comes from and how it moves.">
         <Field label="Data Source" required error={errors.dataSource}>
-          <select
-            className={inputCls}
+          <ComboBox
             value={form.dataSource}
-            onChange={(e) => set("dataSource", e.target.value)}
-          >
-            <option value="">Select…</option>
-            <option>CoAction</option>
-            <option>Third Party</option>
-          </select>
+            onChange={(v) => set("dataSource", v)}
+            options={options.dataSource}
+            placeholder="Coaction / Sapiens / Brinqa"
+          />
         </Field>
         <Field label="Transfer Method" required error={errors.transferMethod}>
-          <select
-            className={inputCls}
+          <ComboBox
             value={form.transferMethod}
-            onChange={(e) => set("transferMethod", e.target.value)}
-          >
-            <option value="">Select…</option>
-            <option>SFTP</option>
-            <option>API</option>
-            <option>Other</option>
-          </select>
+            onChange={(v) => set("transferMethod", v)}
+            options={options.transferMethod}
+            placeholder="File Share / Application / Email"
+          />
         </Field>
         <Field label="Source System">
-          <input
-            className={inputCls}
+          <ComboBox
             value={form.sourceSystem}
-            onChange={(e) => set("sourceSystem", e.target.value)}
+            onChange={(v) => set("sourceSystem", v)}
+            options={options.sourceSystem}
+            placeholder="CoreODS / Sapiens"
           />
         </Field>
         <Field label="Vendor / Partner">
-          <input
-            className={inputCls}
+          <ComboBox
             value={form.vendorPartner}
-            onChange={(e) => set("vendorPartner", e.target.value)}
+            onChange={(v) => set("vendorPartner", v)}
+            options={options.vendorPartner}
+            placeholder="Coaction / Sapiens / Workday"
           />
         </Field>
         <Field label="File Format">
-          <input
-            className={inputCls}
+          <ComboBox
             value={form.fileFormat}
-            onChange={(e) => set("fileFormat", e.target.value)}
+            onChange={(v) => set("fileFormat", v)}
+            options={options.fileFormat}
             placeholder="CSV / JSON / XLSX"
           />
         </Field>
         <Field label="Encryption">
-          <input
-            className={inputCls}
+          <ComboBox
             value={form.encryption}
-            onChange={(e) => set("encryption", e.target.value)}
-            placeholder="PGP / TLS"
+            onChange={(v) => set("encryption", v)}
+            options={options.encryption}
+            placeholder="No / PGP / TLS"
           />
         </Field>
       </Section>
@@ -378,11 +407,19 @@ export function FeedForm({ feed }: { feed?: Feed }) {
             placeholder="Vault path or credential reference"
           />
         </Field>
-        <Field label="Access" full>
+        <Field label="Access Type">
           <input
             className={inputCls}
-            value={form.access}
-            onChange={(e) => set("access", e.target.value)}
+            value={form.accessType}
+            onChange={(e) => set("accessType", e.target.value)}
+            placeholder="Service Account / OAuth2 / SFTP Key"
+          />
+        </Field>
+        <Field label="Access Owner(s)" full>
+          <input
+            className={inputCls}
+            value={form.accessOwners}
+            onChange={(e) => set("accessOwners", e.target.value)}
           />
         </Field>
       </Section>

@@ -38,7 +38,8 @@ function rowToFeed(row) {
     dateProvisioned: row.date_provisioned || "",
     jira: row.jira || "",
     credentials: row.credentials || "",
-    access: row.access || "",
+    accessOwners: row.access_owners || "",
+    accessType: row.access_type || "",
     lastChangeDate: row.last_change_date || "",
     version: row.version || "",
     environment: row.environment || "DEV",
@@ -58,6 +59,33 @@ exports.getAllFeeds = async (req, res) => {
   } catch (err) {
     console.error("getAllFeeds error:", err);
     res.status(500).json({ error: "Failed to retrieve feeds" });
+  }
+};
+
+// ── GET /api/feeds/options/distinct ──────────────────────────────────
+exports.getDistinctOptions = async (req, res) => {
+  try {
+    const fields = [
+      { key: "feedType", col: "feed_type" },
+      { key: "businessDomain", col: "business_domain" },
+      { key: "dataSource", col: "data_source" },
+      { key: "transferMethod", col: "transfer_method" },
+      { key: "sourceSystem", col: "source_system" },
+      { key: "vendorPartner", col: "vendor_partner" },
+      { key: "fileFormat", col: "file_format" },
+      { key: "encryption", col: "encryption" },
+    ];
+    const result = {};
+    for (const { key, col } of fields) {
+      const { rows } = await pool.query(
+        `SELECT DISTINCT ${col} FROM coaction_feed_inventory WHERE ${col} IS NOT NULL AND ${col} <> '' ORDER BY ${col}`
+      );
+      result[key] = rows.map((r) => r[col]);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error("getDistinctOptions error:", err);
+    res.status(500).json({ error: "Failed to retrieve options" });
   }
 };
 
@@ -119,10 +147,10 @@ exports.createFeed = async (req, res) => {
         business_domain, data_owner, product_owner, data_source,
         source_system, vendor_partner, transfer_method, file_format,
         encryption, contains_pii, masking, data_provisioned_to_gp,
-        date_provisioned, jira, credentials, access,
-        last_change_date, version, environment, comments
+        date_provisioned, jira, credentials, access_owners,
+        access_type, last_change_date, version, environment, comments
       ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25
       ) RETURNING *`,
       [
         b.feedId,
@@ -144,7 +172,8 @@ exports.createFeed = async (req, res) => {
         parseDate(b.dateProvisioned),
         b.jira || null,
         b.credentials || null,
-        b.access || null,
+        b.accessOwners || null,
+        b.accessType || null,
         parseDate(b.lastChangeDate),
         b.version || null,
         b.environment || "DEV",
@@ -191,12 +220,13 @@ exports.updateFeed = async (req, res) => {
         date_provisioned     = $17,
         jira                 = $18,
         credentials          = $19,
-        access               = $20,
-        last_change_date     = $21,
-        version              = $22,
-        environment          = $23,
-        comments             = $24
-      WHERE id = $25
+        access_owners        = $20,
+        access_type          = $21,
+        last_change_date     = $22,
+        version              = $23,
+        environment          = $24,
+        comments             = $25
+      WHERE id = $26
       RETURNING *`,
       [
         b.feedId ?? "",
@@ -218,7 +248,8 @@ exports.updateFeed = async (req, res) => {
         parseDate(b.dateProvisioned),
         b.jira ?? "",
         b.credentials ?? "",
-        b.access ?? "",
+        b.accessOwners ?? "",
+        b.accessType ?? "",
         parseDate(b.lastChangeDate),
         b.version ?? "",
         b.environment ?? "DEV",

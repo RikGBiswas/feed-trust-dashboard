@@ -36,7 +36,8 @@ export type Feed = {
   dateProvisioned: string;
   jira: string;
   credentials: string;
-  access: string;
+  accessOwners: string;
+  accessType: string;
   lastChangeDate: string;
   version: string;
   environment: string;
@@ -86,4 +87,19 @@ export function deleteFeed(id: number | string): Promise<{ message: string }> {
 
 export function getFeedKpis(): Promise<FeedKpis> {
   return request<FeedKpis>("/api/feeds/kpis/summary");
+}
+
+export type FieldOptions = {
+  feedType: string[];
+  businessDomain: string[];
+  dataSource: string[];
+  transferMethod: string[];
+  sourceSystem: string[];
+  vendorPartner: string[];
+  fileFormat: string[];
+  encryption: string[];
+};
+
+export function getFieldOptions(): Promise<FieldOptions> {
+  return request<FieldOptions>("/api/feeds/options/distinct");
 }
