@@ -96,10 +96,6 @@ function DashboardPage() {
     () => Array.from(new Set(feeds.map((f) => f.dataSource).filter(Boolean))).sort(),
     [feeds],
   );
-  const environments = useMemo(
-    () => Array.from(new Set(feeds.map((f) => f.environment).filter(Boolean))).sort(),
-    [feeds],
-  );
 
   const filtered = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
@@ -116,7 +112,6 @@ function DashboardPage() {
       }
       if (filters.feedType && f.feedType !== filters.feedType) return false;
       if (filters.transferMethod && f.transferMethod !== filters.transferMethod) return false;
-      if (filters.environment && f.environment !== filters.environment) return false;
       if (filters.containsPII && f.containsPII !== filters.containsPII) return false;
       if (filters.masking && f.masking !== filters.masking) return false;
       if (filters.provisionedToGP && f.provisionedToGP !== filters.provisionedToGP) return false;
@@ -183,11 +178,11 @@ function DashboardPage() {
       <FilterBar
         filters={filters}
         onChange={setFilters}
-        options={{ businessDomain: businessDomains, feedType: feedTypes, transferMethod: transferMethods, dataSource: dataSources, environment: environments }}
+        options={{ businessDomain: businessDomains, feedType: feedTypes, transferMethod: transferMethods, dataSource: dataSources }}
         onExport={() => {
           const fmtDate = (v: string | null | undefined) => { if (!v) return ""; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
-          const headers = ["Feed ID","Feed Name","Feed Type","Business Domain","Data Owner","Product Owner","Data Source","Source System","Vendor/Partner","Transfer Method","File Format","Encryption","Contains PII","Masking","Provisioned to GP","Date Provisioned","JIRA","Version","Environment","Last Change Date","Comments"];
-          const rows = filtered.map(f => [f.feedId,f.feedName,f.feedType,f.businessDomain,f.dataOwner,f.productOwner,f.dataSource,f.sourceSystem,f.vendorPartner,f.transferMethod,f.fileFormat,f.encryption,f.containsPII,f.masking,f.provisionedToGP,fmtDate(f.dateProvisioned),f.jira,f.version,f.environment,fmtDate(f.lastChangeDate),f.comments]);
+          const headers = ["Feed ID","Feed Name","Description","Feed Type","Business Domain","Data Owner","Product Owner","Data Source","Source System","Vendor/Partner","Transfer Method","File Format","Encryption","Contains PII","Masking","Credentials","Access","Provisioned to GP","Date Provisioned","JIRA","Version","Environment","Last Change Date","Comments"];
+          const rows = filtered.map(f => [f.feedId,f.feedName,f.feedDescription,f.feedType,f.businessDomain,f.dataOwner,f.productOwner,f.dataSource,f.sourceSystem,f.vendorPartner,f.transferMethod,f.fileFormat,f.encryption,f.containsPII,f.masking,f.credentials,f.access,f.provisionedToGP,fmtDate(f.dateProvisioned),f.jira,f.version,f.environment,fmtDate(f.lastChangeDate),f.comments]);
           const csv = [headers.join(","), ...rows.map(r => r.map(v => `"${(v ?? "").replace(/"/g, '""')}"`).join(","))].join("\n");
           const blob = new Blob([csv], { type: "text/csv" });
           const url = URL.createObjectURL(blob);
@@ -208,8 +203,8 @@ function DashboardPage() {
           doc.setTextColor(0);
 
           const fmtDate = (v: string | null | undefined) => { if (!v) return ""; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
-          const headers = ["Feed ID","Feed Name","Feed Type","Business Domain","Data Owner","Product Owner","Data Source","Source System","Vendor/Partner","Transfer Method","File Format","Encryption","Contains PII","Masking","Provisioned to GP","Date Provisioned","JIRA","Version","Environment","Last Change Date","Comments"];
-          const rows = filtered.map(f => [f.feedId,f.feedName,f.feedType,f.businessDomain,f.dataOwner,f.productOwner,f.dataSource,f.sourceSystem,f.vendorPartner,f.transferMethod,f.fileFormat,f.encryption,f.containsPII,f.masking,f.provisionedToGP,fmtDate(f.dateProvisioned),f.jira,f.version,f.environment,fmtDate(f.lastChangeDate),f.comments]);
+          const headers = ["Feed ID","Feed Name","Description","Feed Type","Business Domain","Data Owner","Product Owner","Data Source","Source System","Vendor/Partner","Transfer Method","File Format","Encryption","Contains PII","Masking","Credentials","Access","Provisioned to GP","Date Provisioned","JIRA","Version","Environment","Last Change Date","Comments"];
+          const rows = filtered.map(f => [f.feedId,f.feedName,f.feedDescription,f.feedType,f.businessDomain,f.dataOwner,f.productOwner,f.dataSource,f.sourceSystem,f.vendorPartner,f.transferMethod,f.fileFormat,f.encryption,f.containsPII,f.masking,f.credentials,f.access,f.provisionedToGP,fmtDate(f.dateProvisioned),f.jira,f.version,f.environment,fmtDate(f.lastChangeDate),f.comments]);
 
           autoTable(doc, {
             startY: 56,
