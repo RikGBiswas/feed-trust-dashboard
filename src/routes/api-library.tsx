@@ -172,7 +172,7 @@ function ApiLibraryPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-3">
         <KPICard label="Total APIs" value={data.length} hint="All registered" icon={Database} tone="info" />
         <KPICard label="Active" value={data.filter((d) => d.status === "Active").length} hint={`${Math.round((data.filter((d) => d.status === "Active").length / (data.length || 1)) * 100)}% of total`} icon={CheckCircle} tone="success" />
-        <KPICard label="Inactive" value={data.filter((d) => d.status === "Inactive").length} hint="Decommissioned" icon={XCircle} tone="destructive" />
+        <KPICard label="Inactive" value={data.filter((d) => d.status && d.status !== "Active").length} hint="Retired / Inactive" icon={XCircle} tone="destructive" />
         <KPICard label="Domains" value={domains.length} hint="Unique domains" icon={Layers} tone="default" />
         <KPICard label="Integration Types" value={integrationTypes.length} hint="Unique types" icon={Plug} tone="warning" />
       </div>

@@ -148,7 +148,7 @@ function DataIntegrationsPage() {
         <KPICard label="Total Integrations" value={data.length} hint="All registered" icon={Database} tone="info" />
         <KPICard label="Domains" value={domains.length} hint="Unique domains" icon={Layers} tone="default" />
         <KPICard label="Daily Feeds" value={data.filter((d) => d.frequency?.toLowerCase().includes("daily")).length} hint={`${Math.round((data.filter((d) => d.frequency?.toLowerCase().includes("daily")).length / (data.length || 1)) * 100)}% of total`} icon={Clock} tone="success" />
-        <KPICard label="Real-Time" value={data.filter((d) => d.frequency?.toLowerCase().includes("real")).length} hint="Real-time integrations" icon={ArrowLeftRight} tone="warning" />
+        <KPICard label="Monthly Feeds" value={data.filter((d) => d.frequency?.toLowerCase().includes("month")).length} hint={`${Math.round((data.filter((d) => d.frequency?.toLowerCase().includes("month")).length / (data.length || 1)) * 100)}% of total`} icon={ArrowLeftRight} tone="warning" />
         <KPICard label="Platforms" value={targetPlatforms.length} hint="Unique target platforms" icon={Server} tone="default" />
       </div>
 
