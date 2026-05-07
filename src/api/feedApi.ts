@@ -36,8 +36,7 @@ export type Feed = {
   dateProvisioned: string;
   jira: string;
   credentials: string;
-  accessOwners: string;
-  accessType: string;
+  access: string;
   lastChangeDate: string;
   version: string;
   environment: string;
