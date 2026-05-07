@@ -6,7 +6,6 @@ export type Filters = {
   dataSource: string;
   feedType: string;
   transferMethod: string;
-  environment: string;
   containsPII: string;
   masking: string;
   provisionedToGP: string;
@@ -18,7 +17,6 @@ export const emptyFilters: Filters = {
   dataSource: "",
   feedType: "",
   transferMethod: "",
-  environment: "",
   containsPII: "",
   masking: "",
   provisionedToGP: "",
@@ -53,7 +51,6 @@ export function FilterBar({
     feedType: string[];
     transferMethod: string[];
     dataSource: string[];
-    environment: string[];
   };
   onExport: () => void;
   onExportPdf: () => void;
@@ -65,6 +62,11 @@ export function FilterBar({
 
   useClickOutside(filterRef, () => setShowFilters(false));
   useClickOutside(exportRef, () => setShowExport(false));
+
+  const bd = options?.businessDomain ?? [];
+  const ds = options?.dataSource ?? [];
+  const ft = options?.feedType ?? [];
+  const tm = options?.transferMethod ?? [];
 
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) =>
     onChange({ ...filters, [k]: v });
@@ -84,7 +86,7 @@ export function FilterBar({
           onChange={(e) => set("businessDomain", e.target.value)}
         >
           <option value="">Business Domain</option>
-          {options.businessDomain.map((o) => (
+          {bd.map((o) => (
             <option key={o} value={o}>
               {o}
             </option>
@@ -99,7 +101,7 @@ export function FilterBar({
           <option value="__coaction__">Coaction</option>
           <option value="__thirdparty__">Third Party</option>
           <optgroup label="Specific">
-            {options.dataSource.map((o) => (
+            {ds.map((o) => (
               <option key={o} value={o}>
                 {o}
               </option>
@@ -112,7 +114,7 @@ export function FilterBar({
           onChange={(e) => set("feedType", e.target.value)}
         >
           <option value="">Feed Type</option>
-          {options.feedType.map((o) => (
+          {ft.map((o) => (
             <option key={o} value={o}>
               {o}
             </option>
@@ -124,19 +126,7 @@ export function FilterBar({
           onChange={(e) => set("transferMethod", e.target.value)}
         >
           <option value="">Transfer Method</option>
-          {options.transferMethod.map((o) => (
-            <option key={o} value={o}>
-              {o}
-            </option>
-          ))}
-        </select>
-        <select
-          className={selectClass}
-          value={filters.environment}
-          onChange={(e) => set("environment", e.target.value)}
-        >
-          <option value="">Environment</option>
-          {options.environment.map((o) => (
+          {tm.map((o) => (
             <option key={o} value={o}>
               {o}
             </option>
