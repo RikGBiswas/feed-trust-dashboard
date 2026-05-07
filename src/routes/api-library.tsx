@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Loader2, AlertCircle, RefreshCw, Search, Eye, Pencil, X, Save } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCw, Search, Eye, Pencil, X, Save, Database, CheckCircle, XCircle, Layers, Plug } from "lucide-react";
 import { toast } from "sonner";
 import { getApiEntries, updateApiEntry, type ApiEntry } from "@/api/integrationsApi";
 import { Pill } from "@/components/Badge";
+import { KPICard } from "@/components/KPICard";
 
 export const Route = createFileRoute("/api-library")({
   head: () => ({
@@ -59,6 +60,8 @@ function ApiLibraryPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
+  const [integrationTypeFilter, setIntegrationTypeFilter] = useState("");
+  const [sourceTypeFilter, setSourceTypeFilter] = useState("");
   const [viewItem, setViewItem] = useState<ApiEntry | null>(null);
   const [editItem, setEditItem] = useState<ApiEntry | null>(null);
   const [saving, setSaving] = useState(false);
@@ -90,19 +93,29 @@ function ApiLibraryPage() {
     () => Array.from(new Set(data.map((d) => d.domain).filter(Boolean))).sort(),
     [data],
   );
+  const integrationTypes = useMemo(
+    () => Array.from(new Set(data.map((d) => d.integrationType).filter(Boolean))).sort(),
+    [data],
+  );
+  const sourceTypes = useMemo(
+    () => Array.from(new Set(data.map((d) => d.sourceType).filter(Boolean))).sort(),
+    [data],
+  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return data.filter((row) => {
       if (statusFilter && row.status !== statusFilter) return false;
       if (domainFilter && row.domain !== domainFilter) return false;
+      if (integrationTypeFilter && row.integrationType !== integrationTypeFilter) return false;
+      if (sourceTypeFilter && row.sourceType !== sourceTypeFilter) return false;
       if (q) {
         const hay = `${row.name} ${row.description} ${row.sourceOwner} ${row.dataSource} ${row.target} ${row.domain} ${row.pointOfContact}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
-  }, [data, search, statusFilter, domainFilter]);
+  }, [data, search, statusFilter, domainFilter, integrationTypeFilter, sourceTypeFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -155,6 +168,15 @@ function ApiLibraryPage() {
         <p className="text-sm text-muted-foreground mt-1">Catalog of APIs used to extract data for the portal.</p>
       </div>
 
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-3">
+        <KPICard label="Total APIs" value={data.length} hint="All registered" icon={Database} tone="info" />
+        <KPICard label="Active" value={data.filter((d) => d.status === "Active").length} hint={`${Math.round((data.filter((d) => d.status === "Active").length / (data.length || 1)) * 100)}% of total`} icon={CheckCircle} tone="success" />
+        <KPICard label="Inactive" value={data.filter((d) => d.status === "Inactive").length} hint="Decommissioned" icon={XCircle} tone="destructive" />
+        <KPICard label="Domains" value={domains.length} hint="Unique domains" icon={Layers} tone="default" />
+        <KPICard label="Integration Types" value={integrationTypes.length} hint="Unique types" icon={Plug} tone="warning" />
+      </div>
+
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2 bg-card border border-border rounded-lg p-3 shadow-card">
         <select
@@ -175,6 +197,26 @@ function ApiLibraryPage() {
           <option value="">All Statuses</option>
           {statuses.map((s) => (
             <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+        <select
+          className="h-9 rounded-md border border-input bg-card px-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+          value={integrationTypeFilter}
+          onChange={(e) => { setIntegrationTypeFilter(e.target.value); setPage(1); }}
+        >
+          <option value="">All Integration Types</option>
+          {integrationTypes.map((t) => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+        <select
+          className="h-9 rounded-md border border-input bg-card px-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+          value={sourceTypeFilter}
+          onChange={(e) => { setSourceTypeFilter(e.target.value); setPage(1); }}
+        >
+          <option value="">All Source Types</option>
+          {sourceTypes.map((t) => (
+            <option key={t} value={t}>{t}</option>
           ))}
         </select>
         <div className="relative flex-1 min-w-[200px]">

@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Loader2, AlertCircle, RefreshCw, Search, Eye, Pencil, X, Save } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCw, Search, Eye, Pencil, X, Save, Database, ArrowLeftRight, Layers, Clock, Server } from "lucide-react";
 import { toast } from "sonner";
 import { getDataIntegrations, updateDataIntegration, type DataIntegration } from "@/api/integrationsApi";
 import { Pill } from "@/components/Badge";
+import { KPICard } from "@/components/KPICard";
 
 export const Route = createFileRoute("/data-integrations")({
   head: () => ({
@@ -33,6 +34,9 @@ function DataIntegrationsPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
+  const [feedTypeFilter, setFeedTypeFilter] = useState("");
+  const [frequencyFilter, setFrequencyFilter] = useState("");
+  const [targetPlatformFilter, setTargetPlatformFilter] = useState("");
   const [viewItem, setViewItem] = useState<DataIntegration | null>(null);
   const [editItem, setEditItem] = useState<DataIntegration | null>(null);
   const [saving, setSaving] = useState(false);
@@ -60,18 +64,33 @@ function DataIntegrationsPage() {
     () => Array.from(new Set(data.map((d) => d.domain).filter(Boolean))).sort(),
     [data],
   );
+  const feedTypes = useMemo(
+    () => Array.from(new Set(data.map((d) => d.feedType).filter(Boolean))).sort(),
+    [data],
+  );
+  const frequencies = useMemo(
+    () => Array.from(new Set(data.map((d) => d.frequency).filter(Boolean))).sort(),
+    [data],
+  );
+  const targetPlatforms = useMemo(
+    () => Array.from(new Set(data.map((d) => d.targetPlatform).filter(Boolean))).sort(),
+    [data],
+  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return data.filter((row) => {
       if (domainFilter && row.domain !== domainFilter) return false;
+      if (feedTypeFilter && row.feedType !== feedTypeFilter) return false;
+      if (frequencyFilter && row.frequency !== frequencyFilter) return false;
+      if (targetPlatformFilter && row.targetPlatform !== targetPlatformFilter) return false;
       if (q) {
         const hay = `${row.domain} ${row.sourceSystem} ${row.sourcePlatform} ${row.integrationInterface} ${row.targetSystem} ${row.targetPlatform} ${row.feedType} ${row.frequency}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
-  }, [data, search, domainFilter]);
+  }, [data, search, domainFilter, feedTypeFilter, frequencyFilter, targetPlatformFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -124,6 +143,15 @@ function DataIntegrationsPage() {
         <p className="text-sm text-muted-foreground mt-1">Enterprise data integration inventory — source to target mapping.</p>
       </div>
 
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-3">
+        <KPICard label="Total Integrations" value={data.length} hint="All registered" icon={Database} tone="info" />
+        <KPICard label="Domains" value={domains.length} hint="Unique domains" icon={Layers} tone="default" />
+        <KPICard label="Daily Feeds" value={data.filter((d) => d.frequency?.toLowerCase().includes("daily")).length} hint={`${Math.round((data.filter((d) => d.frequency?.toLowerCase().includes("daily")).length / (data.length || 1)) * 100)}% of total`} icon={Clock} tone="success" />
+        <KPICard label="Real-Time" value={data.filter((d) => d.frequency?.toLowerCase().includes("real")).length} hint="Real-time integrations" icon={ArrowLeftRight} tone="warning" />
+        <KPICard label="Platforms" value={targetPlatforms.length} hint="Unique target platforms" icon={Server} tone="default" />
+      </div>
+
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2 bg-card border border-border rounded-lg p-3 shadow-card">
         <select
@@ -134,6 +162,36 @@ function DataIntegrationsPage() {
           <option value="">All Domains</option>
           {domains.map((d) => (
             <option key={d} value={d}>{d}</option>
+          ))}
+        </select>
+        <select
+          className="h-9 rounded-md border border-input bg-card px-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+          value={feedTypeFilter}
+          onChange={(e) => { setFeedTypeFilter(e.target.value); setPage(1); }}
+        >
+          <option value="">All Feed Types</option>
+          {feedTypes.map((f) => (
+            <option key={f} value={f}>{f}</option>
+          ))}
+        </select>
+        <select
+          className="h-9 rounded-md border border-input bg-card px-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+          value={frequencyFilter}
+          onChange={(e) => { setFrequencyFilter(e.target.value); setPage(1); }}
+        >
+          <option value="">All Frequencies</option>
+          {frequencies.map((f) => (
+            <option key={f} value={f}>{f}</option>
+          ))}
+        </select>
+        <select
+          className="h-9 rounded-md border border-input bg-card px-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+          value={targetPlatformFilter}
+          onChange={(e) => { setTargetPlatformFilter(e.target.value); setPage(1); }}
+        >
+          <option value="">All Platforms</option>
+          {targetPlatforms.map((p) => (
+            <option key={p} value={p}>{p}</option>
           ))}
         </select>
         <div className="relative flex-1 min-w-[200px]">
