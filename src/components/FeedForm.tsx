@@ -25,8 +25,7 @@ type FormState = {
   dateProvisioned: string;
   jira: string;
   credentials: string;
-  accessOwners: string;
-  accessType: string;
+  access: string;
   lastChangeDate: string;
   version: string;
   environment: string;
@@ -53,8 +52,7 @@ const initial: FormState = {
   dateProvisioned: "",
   jira: "",
   credentials: "",
-  accessOwners: "",
-  accessType: "",
+  access: "",
   lastChangeDate: "",
   version: "",
   environment: "DEV",
@@ -191,8 +189,7 @@ export function FeedForm({ feed }: { feed?: Feed }) {
         dateProvisioned: toInputDate(feed.dateProvisioned),
         jira: feed.jira ?? "",
         credentials: feed.credentials ?? "",
-        accessOwners: feed.accessOwners ?? "",
-        accessType: feed.accessType ?? "",
+        access: feed.access ?? "",
         lastChangeDate: toInputDate(feed.lastChangeDate),
         version: feed.version ?? "",
         environment: feed.environment ?? "DEV",
@@ -407,19 +404,12 @@ export function FeedForm({ feed }: { feed?: Feed }) {
             placeholder="Vault path or credential reference"
           />
         </Field>
-        <Field label="Access Type">
+        <Field label="Access">
           <input
             className={inputCls}
-            value={form.accessType}
-            onChange={(e) => set("accessType", e.target.value)}
+            value={form.access}
+            onChange={(e) => set("access", e.target.value)}
             placeholder="Service Account / OAuth2 / SFTP Key"
-          />
-        </Field>
-        <Field label="Access Owner(s)" full>
-          <input
-            className={inputCls}
-            value={form.accessOwners}
-            onChange={(e) => set("accessOwners", e.target.value)}
           />
         </Field>
       </Section>

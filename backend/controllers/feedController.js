@@ -38,8 +38,7 @@ function rowToFeed(row) {
     dateProvisioned: row.date_provisioned || "",
     jira: row.jira || "",
     credentials: row.credentials || "",
-    accessOwners: row.access_owners || "",
-    accessType: row.access_type || "",
+    access: row.access_owners || "",
     lastChangeDate: row.last_change_date || "",
     version: row.version || "",
     environment: (row.environment || "DEV").toUpperCase(),
@@ -148,9 +147,9 @@ exports.createFeed = async (req, res) => {
         source_system, vendor_partner, transfer_method, file_format,
         encryption, contains_pii, masking, data_provisioned_to_gp,
         date_provisioned, jira, credentials, access_owners,
-        access_type, last_change_date, version, environment, comments
+        last_change_date, version, environment, comments
       ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24
       ) RETURNING *`,
       [
         b.feedId,
@@ -172,8 +171,7 @@ exports.createFeed = async (req, res) => {
         parseDate(b.dateProvisioned),
         b.jira || null,
         b.credentials || null,
-        b.accessOwners || null,
-        b.accessType || null,
+        b.access || null,
         parseDate(b.lastChangeDate),
         b.version || null,
         (b.environment || "DEV").toUpperCase(),
@@ -221,12 +219,11 @@ exports.updateFeed = async (req, res) => {
         jira                 = $18,
         credentials          = $19,
         access_owners        = $20,
-        access_type          = $21,
-        last_change_date     = $22,
-        version              = $23,
-        environment          = $24,
-        comments             = $25
-      WHERE id = $26
+        last_change_date     = $21,
+        version              = $22,
+        environment          = $23,
+        comments             = $24
+      WHERE id = $25
       RETURNING *`,
       [
         b.feedId ?? "",
@@ -248,8 +245,7 @@ exports.updateFeed = async (req, res) => {
         parseDate(b.dateProvisioned),
         b.jira ?? "",
         b.credentials ?? "",
-        b.accessOwners ?? "",
-        b.accessType ?? "",
+        b.access ?? "",
         parseDate(b.lastChangeDate),
         b.version ?? "",
         (b.environment ?? "DEV").toUpperCase(),
