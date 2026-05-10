@@ -25,7 +25,7 @@ import { getFeeds, getFeedKpis, type Feed, type FeedKpis } from "@/api/feedApi";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Feed Inventory — CoAction" },
+      { title: "Third Party Feeds — CoAction" },
       {
         name: "description",
         content:
@@ -161,7 +161,7 @@ function DashboardPage() {
     <div className="px-6 py-6 space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Feed Inventory</h1>
+          <h1 className="text-2xl font-bold text-foreground">Third Party Feeds</h1>
           <p className="text-sm text-muted-foreground mt-1">Browse, filter, and manage enterprise data feeds across CoAction and third-party sources.</p>
         </div>
         <Link
@@ -205,7 +205,7 @@ function DashboardPage() {
         onExportPdf={() => {
           const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
           doc.setFontSize(14);
-          doc.text("Feed Inventory Dashboard — Growth Protocol", 40, 30);
+          doc.text("Third Party Feeds Dashboard — CoAction", 40, 30);
           doc.setFontSize(9);
           doc.setTextColor(100);
           doc.text(`Generated: ${new Date().toLocaleString()} | ${filtered.length} feeds`, 40, 44);

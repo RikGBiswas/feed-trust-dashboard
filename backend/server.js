@@ -6,6 +6,7 @@ const cors = require("cors");
 const feedRoutes = require("./routes/feeds");
 const integrationsRoutes = require("./routes/integrations");
 const apiLibraryRoutes = require("./routes/apiLibrary");
+const dataSourcesRoutes = require("./routes/dataSources");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,6 +27,7 @@ app.use("/api", (_req, res, next) => {
 app.use("/api/feeds", feedRoutes);
 app.use("/api/integrations", integrationsRoutes);
 app.use("/api/api-library", apiLibraryRoutes);
+app.use("/api/data-sources", dataSourcesRoutes);
 
 // Health check
 app.get("/api/health", (_req, res) => {

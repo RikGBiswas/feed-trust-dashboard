@@ -15,7 +15,7 @@ function NotFoundComponent() {
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:opacity-95"
           >
-            Go to Feed Inventory
+            Go to Third Party Feeds
           </Link>
         </div>
       </div>

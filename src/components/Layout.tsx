@@ -1,8 +1,9 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Database, LayoutDashboard, PlusCircle, ArrowLeftRight, Plug } from "lucide-react";
+import { Database, LayoutDashboard, PlusCircle, ArrowLeftRight, Plug, HardDrive } from "lucide-react";
 
 const nav = [
-  { to: "/", label: "Feed Inventory", icon: LayoutDashboard },
+  { to: "/data-sources", label: "Data Sources", icon: HardDrive },
+  { to: "/", label: "Third Party Feeds", icon: LayoutDashboard },
   { to: "/data-integrations", label: "Data Integrations", icon: ArrowLeftRight },
   { to: "/api-library", label: "API Library", icon: Plug },
   { to: "/add-feed", label: "Add Feed", icon: PlusCircle },

@@ -69,7 +69,7 @@ function EditFeedPage() {
     <div className="px-6 py-6 max-w-5xl mx-auto space-y-5">
       <nav className="flex items-center gap-1 text-xs text-muted-foreground">
         <Link to="/" className="hover:text-foreground">
-          Feed Inventory
+          Third Party Feeds
         </Link>
         <ChevronRight className="h-3.5 w-3.5" />
         <span className="text-foreground">Edit Feed</span>

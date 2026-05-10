@@ -45,3 +45,21 @@ CREATE TABLE IF NOT EXISTS stage.coaction_feed_api_library (
   created_at      TIMESTAMP DEFAULT NOW(),
   updated_at      TIMESTAMP DEFAULT NOW()
 );
+
+-- =====================================================
+-- Data Sources table (coaction_feed_data_sources)
+-- Schema: stage
+-- =====================================================
+CREATE TABLE IF NOT EXISTS stage.coaction_feed_data_sources (
+  id              SERIAL PRIMARY KEY,
+  data_source_name VARCHAR(255) NOT NULL,
+  server_name     VARCHAR(255),
+  environment     VARCHAR(50),
+  database_type   VARCHAR(100),
+  status          VARCHAR(50),
+  recovery_model  VARCHAR(50),
+  legacy_or_new   VARCHAR(20),
+  access_level    VARCHAR(50),
+  created_at      TIMESTAMP DEFAULT NOW(),
+  updated_at      TIMESTAMP DEFAULT NOW()
+);
