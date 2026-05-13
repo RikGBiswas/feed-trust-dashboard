@@ -41,6 +41,7 @@ function DataSourcesPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [envFilter, setEnvFilter] = useState("");
   const [dbTypeFilter, setDbTypeFilter] = useState("");
+  const [gpFilter, setGpFilter] = useState("");
   const [viewItem, setViewItem] = useState<DataSource | null>(null);
   const [editItem, setEditItem] = useState<DataSource | null>(null);
   const [saving, setSaving] = useState(false);
@@ -80,6 +81,10 @@ function DataSourcesPage() {
     () => Array.from(new Set(data.map((d) => d.databaseType).filter(Boolean))).sort(),
     [data],
   );
+  const gpValues = useMemo(
+    () => Array.from(new Set(data.map((d) => d.provisionedToGP).filter(Boolean))).sort(),
+    [data],
+  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -88,13 +93,14 @@ function DataSourcesPage() {
       if (statusFilter && row.status !== statusFilter) return false;
       if (envFilter && row.environment !== envFilter) return false;
       if (dbTypeFilter && row.databaseType !== dbTypeFilter) return false;
+      if (gpFilter && row.provisionedToGP !== gpFilter) return false;
       if (q) {
         const hay = `${row.dataSourceName} ${row.serverName} ${row.environment} ${row.databaseType} ${row.status} ${row.recoveryModel} ${row.legacyOrNew} ${row.accessLevel} ${row.containsPII} ${row.dataMasking} ${row.provisionedToGP} ${row.dateProvisioned} ${row.jira}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
-  }, [data, search, serverFilter, statusFilter, envFilter, dbTypeFilter]);
+  }, [data, search, serverFilter, statusFilter, envFilter, dbTypeFilter, gpFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -198,6 +204,16 @@ function DataSourcesPage() {
           <option value="">All DB Types</option>
           {dbTypes.map((t) => (
             <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+        <select
+          className="h-9 rounded-md border border-input bg-card px-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+          value={gpFilter}
+          onChange={(e) => { setGpFilter(e.target.value); setPage(1); }}
+        >
+          <option value="">All GP Status</option>
+          {gpValues.map((v) => (
+            <option key={v} value={v}>{v}</option>
           ))}
         </select>
         <div className="relative flex-1 min-w-[200px]">
