@@ -1,6 +1,16 @@
 const pool = require("../db");
 
 // ── Helpers ──────────────────────────────────────────────────────────
+function boolToYesNo(val) {
+  return val ? "Yes" : "No";
+}
+
+function yesNoToBool(val) {
+  if (typeof val === "boolean") return val;
+  if (typeof val === "string") return val.toLowerCase() === "yes";
+  return false;
+}
+
 function rowToDataSource(row) {
   return {
     id: row.id,
@@ -12,6 +22,11 @@ function rowToDataSource(row) {
     recoveryModel: row.recovery_model || "",
     legacyOrNew: row.legacy_or_new || "",
     accessLevel: row.access_level || "",
+    containsPII: boolToYesNo(row.contains_pii),
+    dataMasking: boolToYesNo(row.data_masking),
+    provisionedToGP: boolToYesNo(row.provisioned_to_gp),
+    dateProvisioned: row.date_provisioned || "",
+    jira: row.jira || "",
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -52,8 +67,9 @@ exports.create = async (req, res) => {
     const { rows } = await pool.query(
       `INSERT INTO stage.coaction_feed_data_sources (
         data_source_name, server_name, environment, database_type,
-        status, recovery_model, legacy_or_new, access_level
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+        status, recovery_model, legacy_or_new, access_level,
+        contains_pii, data_masking, provisioned_to_gp, date_provisioned, jira
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
       RETURNING *`,
       [
         b.dataSourceName || null,
@@ -64,6 +80,11 @@ exports.create = async (req, res) => {
         b.recoveryModel || null,
         b.legacyOrNew || null,
         b.accessLevel || null,
+        yesNoToBool(b.containsPII),
+        yesNoToBool(b.dataMasking),
+        yesNoToBool(b.provisionedToGP),
+        b.dateProvisioned || null,
+        b.jira || null,
       ]
     );
     res.status(201).json(rowToDataSource(rows[0]));
@@ -83,8 +104,10 @@ exports.update = async (req, res) => {
         data_source_name = $1, server_name = $2, environment = $3,
         database_type = $4, status = $5, recovery_model = $6,
         legacy_or_new = $7, access_level = $8,
+        contains_pii = $9, data_masking = $10, provisioned_to_gp = $11,
+        date_provisioned = $12, jira = $13,
         updated_at = NOW()
-      WHERE id = $9
+      WHERE id = $14
       RETURNING *`,
       [
         b.dataSourceName ?? "",
@@ -95,6 +118,11 @@ exports.update = async (req, res) => {
         b.recoveryModel ?? "",
         b.legacyOrNew ?? "",
         b.accessLevel ?? "",
+        yesNoToBool(b.containsPII),
+        yesNoToBool(b.dataMasking),
+        yesNoToBool(b.provisionedToGP),
+        b.dateProvisioned || null,
+        b.jira || null,
         id,
       ]
     );

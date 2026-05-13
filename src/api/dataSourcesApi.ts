@@ -25,6 +25,11 @@ export type DataSource = {
   recoveryModel: string;
   legacyOrNew: string;
   accessLevel: string;
+  containsPII: string;
+  dataMasking: string;
+  provisionedToGP: string;
+  dateProvisioned: string;
+  jira: string;
   createdAt?: string;
   updatedAt?: string;
 };

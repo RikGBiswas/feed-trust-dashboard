@@ -60,6 +60,11 @@ CREATE TABLE IF NOT EXISTS stage.coaction_feed_data_sources (
   recovery_model  VARCHAR(50),
   legacy_or_new   VARCHAR(20),
   access_level    VARCHAR(50),
+  contains_pii    BOOLEAN DEFAULT FALSE,
+  data_masking    BOOLEAN DEFAULT FALSE,
+  provisioned_to_gp BOOLEAN DEFAULT FALSE,
+  date_provisioned DATE,
+  jira            VARCHAR(255),
   created_at      TIMESTAMP DEFAULT NOW(),
   updated_at      TIMESTAMP DEFAULT NOW()
 );

@@ -25,6 +25,11 @@ const columns: { key: keyof DataSource; label: string }[] = [
   { key: "recoveryModel", label: "Recovery Model" },
   { key: "legacyOrNew", label: "Legacy / New" },
   { key: "accessLevel", label: "Access Level" },
+  { key: "containsPII", label: "PII / PHI" },
+  { key: "dataMasking", label: "Data Masking" },
+  { key: "provisionedToGP", label: "Provisioned to GP" },
+  { key: "dateProvisioned", label: "Date Provisioned" },
+  { key: "jira", label: "Jira" },
 ];
 
 function DataSourcesPage() {
@@ -84,7 +89,7 @@ function DataSourcesPage() {
       if (envFilter && row.environment !== envFilter) return false;
       if (dbTypeFilter && row.databaseType !== dbTypeFilter) return false;
       if (q) {
-        const hay = `${row.dataSourceName} ${row.serverName} ${row.environment} ${row.databaseType} ${row.status} ${row.recoveryModel} ${row.legacyOrNew} ${row.accessLevel}`.toLowerCase();
+        const hay = `${row.dataSourceName} ${row.serverName} ${row.environment} ${row.databaseType} ${row.status} ${row.recoveryModel} ${row.legacyOrNew} ${row.accessLevel} ${row.containsPII} ${row.dataMasking} ${row.provisionedToGP} ${row.dateProvisioned} ${row.jira}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -253,6 +258,21 @@ function DataSourcesPage() {
                       {row.accessLevel ? <Pill variant="info">{row.accessLevel}</Pill> : <span className="text-muted-foreground">—</span>}
                     </td>
                     <td className="px-3 py-2 border-b border-border whitespace-nowrap">
+                      {row.containsPII === "Yes" ? <Pill variant="destructive">Yes</Pill> : <span className="text-muted-foreground">{row.containsPII || "—"}</span>}
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap">
+                      {row.dataMasking === "Yes" ? <Pill variant="success">Yes</Pill> : <span className="text-muted-foreground">{row.dataMasking || "—"}</span>}
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap">
+                      {row.provisionedToGP === "Yes" ? <Pill variant="primary">Yes</Pill> : <span className="text-muted-foreground">{row.provisionedToGP || "—"}</span>}
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap text-muted-foreground">
+                      {row.dateProvisioned || "—"}
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap text-muted-foreground">
+                      {row.jira || "—"}
+                    </td>
+                    <td className="px-3 py-2 border-b border-border whitespace-nowrap">
                       <div className="flex items-center gap-1">
                         <button type="button" onClick={() => setViewItem(row)} className="h-7 w-7 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground flex items-center justify-center" aria-label="View">
                           <Eye className="h-3.5 w-3.5" />
@@ -353,6 +373,18 @@ function DataSourcesPage() {
                   <ViewField label="Access Level" value={viewItem.accessLevel} />
                 </div>
               </div>
+              <div className="border border-border rounded-lg">
+                <div className="px-4 py-2 border-b border-border bg-secondary/30">
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Security & Provisioning</h3>
+                </div>
+                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <ViewField label="PII / PHI" value={viewItem.containsPII} />
+                  <ViewField label="Data Masking" value={viewItem.dataMasking} />
+                  <ViewField label="Provisioned to GP" value={viewItem.provisionedToGP} />
+                  <ViewField label="Date Provisioned" value={viewItem.dateProvisioned} />
+                  <ViewField label="Jira" value={viewItem.jira} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -369,17 +401,39 @@ function DataSourcesPage() {
               </button>
             </div>
             <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {columns.map((c) => (
-                <div key={c.key}>
-                  <label className="text-xs font-medium text-muted-foreground mb-1 block">{c.label}</label>
-                  <input
-                    type="text"
-                    value={(editItem[c.key] as string) ?? ""}
-                    onChange={(e) => setEditItem({ ...editItem, [c.key]: e.target.value })}
-                    className="w-full h-9 px-3 rounded-md border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
-                  />
-                </div>
-              ))}
+              {columns.map((c) => {
+                const isYesNo = c.key === "containsPII" || c.key === "dataMasking" || c.key === "provisionedToGP";
+                const isDate = c.key === "dateProvisioned";
+                return (
+                  <div key={c.key}>
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">{c.label}</label>
+                    {isYesNo ? (
+                      <select
+                        value={(editItem[c.key] as string) ?? "No"}
+                        onChange={(e) => setEditItem({ ...editItem, [c.key]: e.target.value })}
+                        className="w-full h-9 px-3 rounded-md border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                      >
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                      </select>
+                    ) : isDate ? (
+                      <input
+                        type="date"
+                        value={(editItem[c.key] as string)?.slice(0, 10) ?? ""}
+                        onChange={(e) => setEditItem({ ...editItem, [c.key]: e.target.value })}
+                        className="w-full h-9 px-3 rounded-md border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={(editItem[c.key] as string) ?? ""}
+                        onChange={(e) => setEditItem({ ...editItem, [c.key]: e.target.value })}
+                        className="w-full h-9 px-3 rounded-md border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
             <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-border">
               <button

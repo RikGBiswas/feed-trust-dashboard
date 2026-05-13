@@ -285,7 +285,7 @@ export function FeedForm({ feed }: { feed?: Feed }) {
             value={form.feedType}
             onChange={(v) => set("feedType", v)}
             options={options.feedType}
-            placeholder="Internal / External"
+            placeholder="Inbound / Outbound"
           />
         </Field>
         <Field label="Business Domain" required error={errors.businessDomain}>
